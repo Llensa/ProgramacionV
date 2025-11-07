@@ -1,1 +1,103 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --bg: #0B0B0F;          /* negro profundo */
+  --text: #E6E6F0;        /* texto principal */
+  --muted: #A3A7B3;       /* texto secundario */
+  --blue-900: #0D1B2A;    /* azul oscuro */
+  --purple-900: #2A0E3E;  /* púrpura oscuro */
+  --bordo: #C1121F;       /* bordó brillante (detalles/CTA/like) */
+  --accent: #2D5BFF;      /* acento azul */
+  --card: #141421;
+  --border: #222334;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Layout general */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, var(--blue-900), rgba(13, 27, 42, 0.85));
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.nav a,
+.auth a {
+  color: var(--text);
+  text-decoration: none;
+  margin: 0 8px;
+  opacity: 0.85;
+}
+
+.nav a.active {
+  border-bottom: 2px solid var(--accent);
+}
+
+.auth .btn-primary {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--bordo);
+  color: white;
+  font-weight: 600;
+}
+
+.auth .btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.app-main {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.app-footer a {
+  color: var(--accent);
+}
+
+/* Helpers */
+.page {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* A11y */
+a:focus,
+button:focus {
+  outline: 2px solid var(--bordo);
+  outline-offset: 2px;
+}

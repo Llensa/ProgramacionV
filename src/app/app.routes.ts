@@ -1,3 +1,58 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  { path: '', redirectTo: 'explorar', pathMatch: 'full' },
+
+  {
+    path: 'explorar',
+    loadComponent: () =>
+      import('./features/explorar/explorar.page').then(
+        (m) => m.ExplorarPage
+      ),
+  },
+  {
+    path: 'juego/:id',
+    loadComponent: () =>
+      import('./features/detalle/detalle.page').then(
+        (m) => m.DetallePage
+      ),
+  },
+
+  {
+    path: 'favoritos',
+    loadComponent: () =>
+      import('./features/favoritos/favoritos.page').then(
+        (m) => m.FavoritosPage
+      ),
+  },
+  {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import(
+        './features/notificaciones/notificaciones.page'
+      ).then((m) => m.NotificacionesPage),
+  },
+
+  {
+    path: 'auth/login',
+    loadComponent: () =>
+      import('./features/auth/login.page').then(
+        (m) => m.LoginPage
+      ),
+  },
+  {
+    path: 'auth/register',
+    loadComponent: () =>
+      import('./features/auth/register.page').then(
+        (m) => m.RegisterPage
+      ),
+  },
+
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./shared/not-found.page').then(
+        (m) => m.NotFoundPage
+      ),
+  },
+];
