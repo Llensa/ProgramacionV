@@ -1,0 +1,11 @@
+:host {
+  display: flex; flex-direction: column; height: 100vh;
+  background: #0d0d0f; color: #e0e0e0; font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+}
+.app-header{background:linear-gradient(90deg,#0a0a0d,#141426,#1c1c33);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid #222}
+.brand{font-size:1.2rem;font-weight:700;color:#a470ff}
+.nav a,.auth a{color:#cfcfe8;text-decoration:none;margin-right:16px;opacity:.9}
+.nav a.active,.nav a:hover,.auth a:hover{color:#ff5575}
+.auth .btn-primary{color:#fff;background:#a470ff;padding:6px 12px;border-radius:8px;text-decoration:none}
+.app-main{flex:1;padding:24px;overflow:auto}
+.app-footer{background:#0f0f14;border-top:1px solid #222;padding:12px;text-align:center;color:#8a8aa4;font-size:.9rem}
