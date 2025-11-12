@@ -1,62 +1,73 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, timer } from 'rxjs';
-import { catchError, retry, shareReplay } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 
 export interface GameListItem {
-  id: number; title: string; thumbnail: string; short_description: string;
-  genre: string; platform: string; publisher: string; developer: string; release_date: string;
+  id: number;
+  title: string;
+  thumbnail: string;
+  short_description: string;
+  game_url: string;
+  genre: string;
+  platform: string;
+  publisher?: string;
+  developer?: string;
+  release_date?: string;
+  freetogame_profile_url?: string;
 }
-export interface GameListResponse { page: number; pageSize: number; total: number; items: GameListItem[]; }
 
-type CacheEntry<T> = { exp: number; obs$: Observable<T> };
+export interface GameListResponse {
+  items: GameListItem[];
+  total: number;
+}
+
+export type GetGamesOptions = {
+  page?: number;
+  pageSize?: number;
+  platform?: 'pc' | 'browser' | 'all';
+  category?: string;
+  sortBy?: 'release-date' | 'alphabetical' | 'popularity' | 'relevance';
+};
 
 @Injectable({ providedIn: 'root' })
 export class GamesApiService {
   private http = inject(HttpClient);
+
   private readonly baseUrl =
-  (typeof window !== 'undefined' && (window as any).__CFG__?.apiBaseUrl)
-  || 'https://freetogame-proxy.juanpablollensa.workers.dev/api';
+    (typeof window !== 'undefined' && (window as any).__CFG__?.apiBaseUrl)
+    || 'https://freetogame-proxy.juanpablollensa.workers.dev/api';
 
+  /** Listado con paginado simulado por el proxy */
+  getGames(opts: GetGamesOptions): Observable<GameListResponse> {
+    let params = new HttpParams();
+    if (opts.platform) params = params.set('platform', opts.platform);
+    if (opts.category) params = params.set('category', opts.category);
+    if (opts.sortBy)  params = params.set('sort-by', opts.sortBy);
 
-  private cache = new Map<string, CacheEntry<any>>();
-  private readonly ttlMs = 1000 * 60 * 5;
+    // nuestro worker admite ?page=&pageSize=
+    if (opts.page)     params = params.set('page', String(opts.page));
+    if (opts.pageSize) params = params.set('pageSize', String(opts.pageSize));
 
-  private getWithCache<T>(path: string, params: HttpParams): Observable<T> {
-    const key = `${path}?${params.toString()}`;
-    const now = Date.now();
-    const hit = this.cache.get(key);
-    if (hit && hit.exp > now) return hit.obs$;
-
-    const obs$ = this.http.get<T>(`${this.baseUrl}${path}`, { params }).pipe(
-      retry({ count: 2, delay: (_, i) => timer(300 * (i + 1)) }),
-      shareReplay(1)
-    );
-
-    this.cache.set(key, { exp: now + this.ttlMs, obs$ });
-    return obs$;
-  }
-
-  getGames(o?: { page?: number; pageSize?: number; platform?: string; category?: string; sortBy?: string; }): Observable<GameListResponse> {
-    let params = new HttpParams()
-      .set('page', String(o?.page ?? 1))
-      .set('pageSize', String(o?.pageSize ?? 24));
-    if (o?.platform) params = params.set('platform', o.platform);
-    if (o?.category) params = params.set('category', o.category);
-    if (o?.sortBy) params = params.set('sort-by', o.sortBy);
-
-    return this.getWithCache<GameListResponse>('/games', params).pipe(
-      catchError(err => {
-        console.error('[GamesApi] getGames error', err);
-        return of({ page: 1, pageSize: 0, total: 0, items: [] });
-      })
+    const url = `${this.baseUrl}/games`;
+    return this.http.get<GameListItem[] | { items: GameListItem[]; total: number }>(url, { params }).pipe(
+      map((res: any) => {
+        // si el worker ya devuelve {items,total}, lo respetamos; si no, lo adaptamos
+        if (res && Array.isArray(res.items)) return res as GameListResponse;
+        const arr = Array.isArray(res) ? (res as GameListItem[]) : [];
+        const page = opts.page ?? 1;
+        const pageSize = opts.pageSize ?? arr.length;
+        const start = (page - 1) * pageSize;
+        const sliced = arr.slice(start, start + pageSize);
+        return { items: sliced, total: arr.length } as GameListResponse;
+      }),
     );
   }
 
-  getGameById(id: number): Observable<any> {
-    const params = new HttpParams().set('id', String(id));
-    return this.getWithCache<any>('/game', params).pipe(
-      catchError(err => { console.error('[GamesApi] getGameById error', err); return of(null); })
-    );
-  }
+  
+  getGameById(id: number) {
+  const params = new HttpParams().set('id', String(id));
+  const url = `${this.baseUrl}/game`;
+  return this.http.get<any>(url, { params });
+}
+
 }

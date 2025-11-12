@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { combineLatest, of } from 'rxjs';
 
 import { GamesApiService, GameListItem, GameListResponse } from '../../core/api/games-api';
@@ -13,7 +13,7 @@ const LS_KEY = 'explorar.filters.v1';
 @Component({
   selector: 'app-explorar',
   standalone: true,
-  imports: [CommonModule, FiltersBarComponent, InfiniteScrollDirective],
+  imports: [CommonModule, RouterLink, FiltersBarComponent, InfiniteScrollDirective],
   template: `
     <section class="page">
       <header class="head">
@@ -31,9 +31,14 @@ const LS_KEY = 'explorar.filters.v1';
 
       <div class="grid">
         <article class="card" *ngFor="let g of games()">
-          <img [src]="g.thumbnail" [alt]="g.title" loading="lazy" />
+          <a class="media" [routerLink]="['/juego', g.id]">
+            <img [src]="g.thumbnail" [alt]="g.title" loading="lazy" />
+          </a>
+
           <div class="card-body">
-            <h2>{{ g.title }}</h2>
+            <h2 class="title">
+              <a [routerLink]="['/juego', g.id]">{{ g.title }}</a>
+            </h2>
             <p class="genre">{{ g.genre }} · {{ g.platform }}</p>
             <p class="desc">{{ g.short_description }}</p>
           </div>
@@ -46,16 +51,33 @@ const LS_KEY = 'explorar.filters.v1';
     </section>
   `,
   styles: [`
-    .page{background:#141421;border:1px solid #222334;border-radius:14px;padding:16px}
+    .page{background:#141421;border:1px solid #222334;border-radius:14px;padding:16px;max-width:1400px;margin:0 auto}
     .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
     .meta,.muted{color:#a3a7b3}.error{color:#ff6b6b}
+
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:12px}
-    .card{background:#181828;border:1px solid #222334;border-radius:12px;overflow:hidden}
-    .card img{width:100%;height:160px;object-fit:cover}
-    .card-body{padding:10px 12px}
+
+    .card{
+      background:#181828;border:1px solid #222334;border-radius:12px;overflow:hidden;
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .card:hover{ transform: translateY(-2px); border-color:#343455; box-shadow:0 6px 18px rgba(0,0,0,.3) }
+
+    .media{ display:block; width:100%; height:160px; background:#0f0f18 }
+    .media img{ width:100%; height:100%; object-fit:cover; display:block }
+
+    .card-body{ padding:10px 12px }
+    .title{ margin:0 0 4px }
+    .title a{ color:#fff; text-decoration:none }
+    .title a:hover{ text-decoration:underline }
     .genre{color:#a3a7b3;margin:4px 0 6px;font-size:.85rem}
     .desc{color:#a3a7b3;font-size:.9rem}
     .end{text-align:center;margin-top:12px}
+
+    @media (max-width: 768px){
+      .page{ padding:12px; border-radius:10px }
+      .media{ height:140px }
+    }
   `],
 })
 export class ExplorarPage implements OnInit {
