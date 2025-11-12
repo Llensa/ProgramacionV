@@ -14,7 +14,10 @@ type CacheEntry<T> = { exp: number; obs$: Observable<T> };
 @Injectable({ providedIn: 'root' })
 export class GamesApiService {
   private http = inject(HttpClient);
-  private readonly baseUrl = 'https://freetogame-proxy.juanpablollensa.workers.dev/';
+  private readonly baseUrl =
+  (typeof window !== 'undefined' && (window as any).__CFG__?.apiBaseUrl)
+  || 'https://freetogame-proxy.juanpablollensa.workers.dev/api';
+
 
   private cache = new Map<string, CacheEntry<any>>();
   private readonly ttlMs = 1000 * 60 * 5;
