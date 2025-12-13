@@ -1,4 +1,4 @@
-import { Injectable, Signal, computed, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 const LS_KEY = 'yenzaplayg.favorites.v1';
 
@@ -6,23 +6,27 @@ const LS_KEY = 'yenzaplayg.favorites.v1';
 export class FavoritesService {
   private idsSig = signal<number[]>(this.read());
 
-  /** ✅ lista reactiva (Signal) */
-  readonly ids: Signal<number[]> = this.idsSig.asReadonly();
+  /** ✅ Signal readonly (se usa como: this.favs.ids()) */
+  ids = this.idsSig.asReadonly();
 
-  /** ✅ set reactivo para checks rápidos */
-  readonly idsSet = computed(() => new Set(this.idsSig()));
+  constructor() {
+    // ✅ por si cambia el localStorage desde otra pestaña/ventana
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key === LS_KEY) this.idsSig.set(this.read());
+      });
+    }
+  }
 
   has(id: number): boolean {
-    return this.idsSet().has(Number(id));
+    const n = Number(id);
+    return this.idsSig().includes(n);
   }
 
   toggle(id: number): void {
     const n = Number(id);
     const current = this.idsSig();
-    const next = current.includes(n)
-      ? current.filter(x => x !== n)
-      : [...current, n];
-
+    const next = current.includes(n) ? current.filter(x => x !== n) : [...current, n];
     this.idsSig.set(next);
     this.write(next);
   }
@@ -47,10 +51,11 @@ export class FavoritesService {
     this.write([]);
   }
 
-  // ✅ aliases por compatibilidad (si algún componente viejo los usa)
+  // ✅ aliases (por compatibilidad con código viejo)
   isFavorite(id: number): boolean {
     return this.has(id);
   }
+
   toggleFavorite(gameOrId: any): void {
     const id = typeof gameOrId === 'number' ? gameOrId : Number(gameOrId?.id);
     if (!Number.isFinite(id)) return;
