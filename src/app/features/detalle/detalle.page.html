@@ -1,1 +1,93 @@
-<p>detalle.page works!</p>
+<section class="detail" *ngIf="game() as g">
+  <header class="head">
+    <div class="titleBlock">
+      <h1 class="title">{{ g.title }}</h1>
+      <div class="meta">
+        <span class="pill">{{ g.genre }}</span>
+        <span class="dot">•</span>
+        <span class="pill">{{ g.platform }}</span>
+        <span class="dot" *ngIf="g.publisher">•</span>
+        <span class="muted" *ngIf="g.publisher">{{ g.publisher }}</span>
+      </div>
+    </div>
+
+    <button class="fav" type="button" (click)="toggleFav()">
+      <span class="star">{{ fav() ? '★' : '☆' }}</span>
+      <span>{{ fav() ? 'En favoritos' : 'Agregar a favoritos' }}</span>
+    </button>
+  </header>
+
+  <!-- Slider -->
+  <div class="media" *ngIf="mediaUrls().length; else noMedia">
+    <div
+      class="slider"
+      (pointerdown)="onPointerDown($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointercancel)="onPointerCancel()"
+    >
+      <button
+        class="nav prev"
+        type="button"
+        (click)="prev()"
+        [disabled]="mediaUrls().length < 2"
+        aria-label="Anterior"
+      >
+        ‹
+      </button>
+
+      <div class="frame">
+        <img
+          class="shot"
+          [src]="mediaUrls()[activeIndex()]"
+          [alt]="g.title"
+          loading="eager"
+          (error)="onImgError($event)"
+        />
+      </div>
+
+      <button
+        class="nav next"
+        type="button"
+        (click)="next()"
+        [disabled]="mediaUrls().length < 2"
+        aria-label="Siguiente"
+      >
+        ›
+      </button>
+
+      <div class="counter" *ngIf="mediaUrls().length > 1">
+        {{ activeIndex() + 1 }} / {{ mediaUrls().length }}
+      </div>
+    </div>
+
+    <div class="dots" *ngIf="mediaUrls().length > 1">
+      <button
+        *ngFor="let _ of mediaUrls(); let i = index"
+        type="button"
+        class="dotbtn"
+        [class.active]="i === activeIndex()"
+        (click)="go(i)"
+        [attr.aria-label]="'Ir a imagen ' + (i + 1)"
+      ></button>
+    </div>
+  </div>
+
+  <ng-template #noMedia>
+    <div class="noMedia">
+      No hay imágenes disponibles para este juego.
+    </div>
+  </ng-template>
+
+  <div class="body">
+    <p class="desc">{{ g.description }}</p>
+
+    <div class="actions" *ngIf="g.game_url">
+      <a class="btn primary" [href]="g.game_url" target="_blank" rel="noopener">
+        Descargar / Sitio oficial
+      </a>
+    </div>
+  </div>
+</section>
+
+<p class="state muted" *ngIf="loading()">Cargando...</p>
+<p class="state error" *ngIf="error()">{{ error() }}</p>

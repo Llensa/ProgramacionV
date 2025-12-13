@@ -1,88 +1,157 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
+  HostListener
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { GamesApiService } from '../../core/api/games-api';
-import { FavoritesService } from '../../core/favorites/favorites.service';
+import { FavoritesService } from '../../core/services/favorites.service';
 
 @Component({
   selector: 'app-detalle',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <section class="detail" *ngIf="game() as g">
-      <header class="head">
-        <h1>{{ g.title }}</h1>
-        <button class="fav" (click)="toggleFav(g.id); $event.stopPropagation()">
-          {{ fav() ? '★ Quitar de favoritos' : '☆ Agregar a favoritos' }}
-        </button>
-      </header>
-
-      <div class="meta">
-        <span>{{ g.genre }}</span>
-        <span>·</span>
-        <span>{{ g.platform }}</span>
-        <span *ngIf="g.publisher">· {{ g.publisher }}</span>
-        <span *ngIf="g.developer">· {{ g.developer }}</span>
-        <span *ngIf="g.release_date">· {{ g.release_date }}</span>
-      </div>
-
-      <p class="desc">{{ g.description }}</p>
-
-      <div class="gallery" *ngIf="g.screenshots?.length">
-        <img *ngFor="let s of g.screenshots" [src]="s.image" [alt]="g.title" loading="lazy"/>
-      </div>
-
-      <div class="actions">
-        <a class="btn-primary" [href]="g.game_url" target="_blank" rel="noopener">
-          Descargar / Sitio oficial
-        </a>
-        <a class="btn-secondary" [href]="g.freetogame_profile_url" target="_blank" rel="noopener">
-          Ver en FreeToGame
-        </a>
-      </div>
-    </section>
-
-    <p class="muted" *ngIf="loading()">Cargando...</p>
-    <p class="error" *ngIf="error()">{{ error() }}</p>
-  `,
-  styles: [`
-    .detail{background:#141421;border:1px solid #222334;border-radius:14px;padding:16px;max-width:1200px;margin:0 auto}
-    .head{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .fav{background:transparent;color:#ffd86b;border:1px solid #3a3218;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .meta{color:#a3a7b3;margin:.4rem 0 1rem;display:flex;gap:.5rem;flex-wrap:wrap}
-    .desc{color:#cfd1db;line-height:1.6}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:16px 0}
-    .gallery img{width:100%;height:180px;object-fit:cover;border-radius:10px;border:1px solid #222334}
-    .actions{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
-    .btn-primary{background:#a470ff;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px}
-    .btn-secondary{background:#25253a;color:#e6e6f0;text-decoration:none;padding:10px 14px;border-radius:10px;border:1px solid #343455}
-    .muted{color:#a3a7b3}
-    .error{color:#ff6b6b}
-    @media (max-width:768px){ .detail{padding:12px} .gallery img{height:150px} }
-  `],
+  templateUrl: './detalle.page.html',
+  styleUrl: './detalle.page.css',
 })
 export class DetallePage implements OnInit {
   private api = inject(GamesApiService);
   private route = inject(ActivatedRoute);
   private favs = inject(FavoritesService);
+  private destroyRef = inject(DestroyRef);
+
+  private idSig = signal<number | null>(null);
 
   loading = signal(false);
   error = signal<string | null>(null);
   game = signal<any | null>(null);
-  fav = signal(false);
+
+  // Slider
+  activeIndex = signal(0);
+
+  // URLs de media: screenshots si hay, si no thumbnail
+  mediaUrls = computed<string[]>(() => {
+    const g = this.game();
+    const shots = (g?.screenshots ?? [])
+      .map((s: any) => s?.image)
+      .filter((x: any) => typeof x === 'string' && x.length > 0);
+
+    if (shots.length) return shots;
+
+    const thumb = g?.thumbnail;
+    return typeof thumb === 'string' && thumb.length ? [thumb] : [];
+  });
+
+  // ✅ Reactivo real: si cambiás favoritos desde otra pantalla, esto se actualiza
+  fav = computed(() => {
+    this.favs.ids(); // dependencia reactiva explícita (ids es Signal)
+    const id = this.idSig();
+    return id !== null ? this.favs.has(id) : false;
+  });
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.fav.set(this.favs.has(id));
-    this.loading.set(true);
-    this.api.getGameById(id).subscribe({
-      next: g => { this.game.set(g); this.loading.set(false); },
-      error: () => { this.error.set('No se pudo cargar el juego.'); this.loading.set(false); }
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(pm => {
+        const id = Number(pm.get('id'));
+        if (!Number.isFinite(id)) {
+          this.error.set('ID inválido.');
+          return;
+        }
+
+        this.idSig.set(id);
+        this.activeIndex.set(0);
+        this.loadGame(id);
+      });
+
+    // Si cambia el set de imágenes (nuevo juego o recarga), clamp del índice
+    computed(() => {
+      const total = this.mediaUrls().length;
+      const i = this.activeIndex();
+      if (!total) return;
+      if (i >= total) this.activeIndex.set(0);
+    })();
   }
 
-  toggleFav(id: number){
+  toggleFav() {
+    const id = this.idSig();
+    if (id === null) return;
     this.favs.toggle(id);
-    this.fav.set(this.favs.has(id));
+  }
+
+  prev() {
+    const total = this.mediaUrls().length;
+    if (total <= 1) return;
+    const i = this.activeIndex();
+    this.activeIndex.set((i - 1 + total) % total);
+  }
+
+  next() {
+    const total = this.mediaUrls().length;
+    if (total <= 1) return;
+    const i = this.activeIndex();
+    this.activeIndex.set((i + 1) % total);
+  }
+
+  go(i: number) {
+    const total = this.mediaUrls().length;
+    if (i < 0 || i >= total) return;
+    this.activeIndex.set(i);
+  }
+
+  // Teclado
+  @HostListener('window:keydown', ['$event'])
+  onKey(e: KeyboardEvent) {
+    if (e.key === 'ArrowLeft') this.prev();
+    if (e.key === 'ArrowRight') this.next();
+  }
+
+  // Swipe (móvil)
+  private startX: number | null = null;
+
+  onPointerDown(ev: PointerEvent) {
+    this.startX = ev.clientX;
+  }
+  onPointerUp(ev: PointerEvent) {
+    if (this.startX === null) return;
+    const dx = ev.clientX - this.startX;
+    this.startX = null;
+
+    // umbral
+    if (Math.abs(dx) < 40) return;
+    dx > 0 ? this.prev() : this.next();
+  }
+  onPointerCancel() {
+    this.startX = null;
+  }
+
+  onImgError(ev: Event) {
+    const img = ev.target as HTMLImageElement;
+    img.style.opacity = '0';
+    img.style.pointerEvents = 'none';
+  }
+
+  private loadGame(id: number) {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.api.getGameById(id).subscribe({
+      next: g => {
+        this.game.set(g);
+        this.loading.set(false);
+        this.activeIndex.set(0);
+      },
+      error: () => {
+        this.error.set('No se pudo cargar el juego.');
+        this.loading.set(false);
+      }
+    });
   }
 }

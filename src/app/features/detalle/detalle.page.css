@@ -1,0 +1,229 @@
+/* Steam-ish + responsive */
+.detail{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: radial-gradient(1200px 400px at 20% -10%, rgba(90,140,255,.18), transparent 60%),
+  radial-gradient(900px 400px at 90% 0%, rgba(164,112,255,.14), transparent 55%),
+  rgba(14, 18, 28, .92);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.title{
+  margin: 0;
+  color: #e8edf7;
+  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  letter-spacing: .2px;
+}
+
+.meta{
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill{
+  font-size: .85rem;
+  color: #c7d2e6;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.dot{
+  color: rgba(255,255,255,.25);
+}
+
+.muted{
+  color: rgba(220,230,255,.7);
+  font-size: .9rem;
+}
+
+.fav{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 216, 107, .22);
+  background: rgba(0,0,0,.20);
+  color: #ffe28d;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  user-select: none;
+}
+
+.fav:hover{
+  transform: translateY(-1px);
+  background: rgba(0,0,0,.28);
+  border-color: rgba(255, 216, 107, .35);
+}
+
+.star{
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* Slider grande */
+.media{
+  margin-top: 14px;
+}
+
+.slider{
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.25);
+  overflow: hidden;
+}
+
+/* frame con ratio para que sea consistente */
+.frame{
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,.35);
+}
+
+.shot{
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ✅ muestra la imagen completa */
+  display: block;
+  background: rgba(0,0,0,.35);
+}
+
+.nav{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.35);
+  color: rgba(230,240,255,.9);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .15s ease, transform .15s ease;
+  z-index: 2;
+}
+
+.nav:hover{
+  background: rgba(0,0,0,.48);
+}
+
+.nav:disabled{
+  opacity: .35;
+  cursor: default;
+}
+
+.prev{ left: 10px; }
+.next{ right: 10px; }
+
+.counter{
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: .85rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(230,240,255,.9);
+}
+
+.dots{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0 0;
+}
+
+.dotbtn{
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+
+.dotbtn.active{
+  background: rgba(164,112,255,.85);
+  border-color: rgba(164,112,255,.9);
+  transform: scale(1.15);
+}
+
+.noMedia{
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.06);
+  color: rgba(220,230,255,.7);
+}
+
+.body{
+  margin-top: 14px;
+}
+
+.desc{
+  margin: 0;
+  color: rgba(230,240,255,.86);
+  line-height: 1.65;
+}
+
+.actions{
+  margin-top: 14px;
+}
+
+.btn{
+  display: inline-block;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.btn.primary{
+  background: rgba(164,112,255,.95);
+  color: #0b0f18;
+  font-weight: 600;
+}
+
+.state{
+  margin-top: 12px;
+  text-align: center;
+}
+
+.state.error{
+  color: #ff6b6b;
+}
+
+/* Responsive */
+@media (max-width: 768px){
+  .detail{ padding: 12px; border-radius: 12px; }
+  .nav{ width: 40px; height: 40px; font-size: 26px; }
+  .prev{ left: 8px; }
+  .next{ right: 8px; }
+  .counter{ right: 10px; bottom: 8px; }
+}

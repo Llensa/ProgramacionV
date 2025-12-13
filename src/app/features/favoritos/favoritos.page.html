@@ -1,1 +1,24 @@
-<p>favoritos.page works!</p>
+<section class="page">
+  <header class="head">
+    <div>
+      <h1 class="title">Favoritos</h1>
+      <p class="sub" *ngIf="total() > 0">{{ total() }} juego(s) guardado(s)</p>
+      <p class="sub muted" *ngIf="total() === 0">Todavía no agregaste favoritos.</p>
+    </div>
+
+    <button class="btn danger" type="button" (click)="clearAll()" [disabled]="total() === 0">
+      Limpiar
+    </button>
+  </header>
+
+  <p class="state muted" *ngIf="loading()">Cargando favoritos...</p>
+  <p class="state error" *ngIf="error()">{{ error() }}</p>
+
+  <div class="empty" *ngIf="!loading() && total() === 0">
+    <p>Tip: tocá la estrella ⭐ desde Explorar o Detalle.</p>
+  </div>
+
+  <div class="grid" *ngIf="games().length">
+    <app-game-card *ngFor="let g of games()" [game]="g"></app-game-card>
+  </div>
+</section>
