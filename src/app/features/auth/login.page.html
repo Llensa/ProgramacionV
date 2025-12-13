@@ -1,1 +1,37 @@
-<p>login.page works!</p>
+<section class="auth-container">
+  <div class="auth-card">
+    <h1>Bienvenido</h1>
+    <p class="subtitle">Ingresa para ver tus favoritos.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="Email"
+               [class.invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" formControlName="password" placeholder="Contraseña"
+               [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+      </div>
+
+      @if (error()) {
+        <div class="alert error">{{ error() }}</div>
+      }
+
+      <button type="submit" class="btn-primary full" [disabled]="form.invalid || loading()">
+        {{ loading() ? 'Ingresando...' : 'Iniciar Sesión' }}
+      </button>
+
+      <button type="button" class="link" (click)="onResetPassword()">
+        ¿Olvidaste tu contraseña?
+      </button>
+
+      <div class="footer">
+        <span>¿No tienes cuenta?</span>
+        <a routerLink="/auth/register">Regístrate gratis</a>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,1 +1,35 @@
-<p>notificaciones.page works!</p>
+<section class="page">
+  <header class="head">
+    <div>
+      <h1 class="title">Notificaciones</h1>
+      <p class="sub" *ngIf="unread() > 0">{{ unread() }} sin leer</p>
+      <p class="sub muted" *ngIf="unread() === 0">Todo al día ✅</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn" type="button" (click)="markAllRead()" [disabled]="unread() === 0">
+        Marcar todo leído
+      </button>
+      <button class="btn danger" type="button" (click)="clear()" [disabled]="!hasItems()">
+        Limpiar
+      </button>
+    </div>
+  </header>
+
+  <div class="empty" *ngIf="!hasItems()">
+    Todavía no hay notificaciones.
+  </div>
+
+  <div class="list" *ngIf="hasItems()">
+    <article class="item" *ngFor="let n of items()" [class.unread]="!n.read" [attr.data-kind]="n.kind">
+      <div class="left" (click)="markRead(n.id)">
+        <div class="k">{{ n.kind }}</div>
+        <div class="t">{{ n.title }}</div>
+        <div class="m" *ngIf="n.message">{{ n.message }}</div>
+        <div class="time muted">{{ n.createdAt | date:'short' }}</div>
+      </div>
+
+      <button class="x" type="button" (click)="remove(n.id)">✕</button>
+    </article>
+  </div>
+</section>

@@ -1,12 +1,16 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [provideZonelessChangeDetection()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+      ],
     }).compileComponents();
   });
 
@@ -20,9 +24,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-
-    // En tu app.html NO hay <h1>, el título está en .brand
-    expect(compiled.querySelector('.brand')?.textContent)
-      .toContain('🎮 Free2Play Explorer');
+    expect(compiled.textContent).toContain('YenzaPlayG');
   });
 });
