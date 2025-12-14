@@ -1,11 +1,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'PEGÁ_ACÁ_TU_APIKEY',
-    authDomain: 'PEGÁ_ACÁ_TU_AUTHDOMAIN',
-    projectId: 'PEGÁ_ACÁ_TU_PROJECTID',
-    appId: 'PEGÁ_ACÁ_TU_APPID',
-    storageBucket: 'PEGÁ_ACÁ_TU_STORAGEBUCKET',
-    messagingSenderId: 'PEGÁ_ACÁ_TU_SENDERID',
-  }
+    apiKey: "AIzaSyBhcaujSMFWwubk6R2llVom8BC192YNkOM",
+    authDomain: "yenzaplayg.firebaseapp.com",
+    projectId: "yenzaplayg",
+    storageBucket: "yenzaplayg.firebasestorage.app",
+    messagingSenderId: "226624826487",
+    appId: "1:226624826487:web:33bae4b03587012bc06a72",
+    measurementId: "G-G4MBNQTS70",
+  },
 };

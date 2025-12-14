@@ -1,0 +1,33 @@
+<header class="app-header">
+  <div class="brand" routerLink="/explorar">
+    🎮 YenzaPlayG
+  </div>
+
+  <nav class="nav">
+    <a routerLink="/explorar" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Explorar</a>
+    <a routerLink="/favoritos" routerLinkActive="active">Favoritos</a>
+    <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
+  </nav>
+
+  <nav class="auth" *ngIf="!email(); else logged">
+    <a routerLink="/auth/login" routerLinkActive="active">Ingresar</a>
+    <a routerLink="/auth/register" class="btn-primary">Crear cuenta</a>
+  </nav>
+
+  <ng-template #logged>
+    <div class="userbox">
+      <div class="avatar" [title]="email()">
+        {{ initial() }}
+      </div>
+
+      <div class="usertext">
+        <div class="mail">{{ email() }}</div>
+        <div class="badge" [class.bad]="!emailVerified()">
+          {{ emailVerified() ? 'Verificado' : 'No verificado' }}
+        </div>
+      </div>
+
+      <button class="logout" type="button" (click)="logout()">Salir</button>
+    </div>
+  </ng-template>
+</header>

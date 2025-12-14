@@ -1,14 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========== Theme ========== */
 :root {
-  --bg: #0B0B0F;          /* negro profundo */
-  --text: #E6E6F0;        /* texto principal */
-  --muted: #A3A7B3;       /* texto secundario */
-  --blue-900: #0D1B2A;    /* azul oscuro */
-  --purple-900: #2A0E3E;  /* púrpura oscuro */
-  --bordo: #C1121F;       /* bordó brillante (detalles/CTA/like) */
-  --accent: #2D5BFF;      /* acento azul */
+  --bg: #0B0B0F;
+  --text: #E6E6F0;
+  --muted: #A3A7B3;
+
   --card: #141421;
   --border: #222334;
+
+  --accent: #2D5BFF;
+  --bordo: #C1121F;
+
+  --shadow: 0 18px 40px rgba(0,0,0,.45);
 }
 
 * { box-sizing: border-box; }
@@ -21,69 +23,7 @@ body {
   color: var(--text);
 }
 
-/* Layout general */
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 16px;
-  align-items: center;
-  padding: 12px 20px;
-  background: linear-gradient(180deg, var(--blue-900), rgba(13, 27, 42, 0.85));
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(6px);
-}
-
-.brand {
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-.nav a,
-.auth a {
-  color: var(--text);
-  text-decoration: none;
-  margin: 0 8px;
-  opacity: 0.85;
-}
-
-.nav a.active {
-  border-bottom: 2px solid var(--accent);
-}
-
-.auth .btn-primary {
-  padding: 6px 10px;
-  border-radius: 10px;
-  background: var(--bordo);
-  color: white;
-  font-weight: 600;
-}
-
-.auth .btn-primary:hover {
-  filter: brightness(1.1);
-}
-
-.app-main {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.app-footer {
-  margin-top: 40px;
-  padding: 20px;
-  text-align: center;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-}
-
-.app-footer a {
-  color: var(--accent);
-}
-
-/* Helpers */
+/* ========== Base helpers ========== */
 .page {
   background: var(--card);
   border: 1px solid var(--border);
@@ -91,19 +31,82 @@ body {
   padding: 18px;
 }
 
-.muted {
-  color: var(--muted);
-}
+.muted { color: var(--muted); }
+.error { color: #ff6b6b; }
 
-/* A11y */
-a:focus,
-button:focus {
+a { color: var(--accent); }
+a:hover { filter: brightness(1.1); }
+
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
   outline: 2px solid var(--bordo);
   outline-offset: 2px;
 }
-@media (max-width: 768px){
-  html, body { -ms-overflow-style: none;
-     scrollbar-width: none; }
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar { display: none; }
+
+/* ========== Controls ========== */
+.input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  color: var(--text);
+}
+
+.input::placeholder { color: rgba(230,230,240,.55); }
+
+.btn {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.25);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(164,112,255,.35);
+  filter: brightness(1.05);
+}
+
+.btn.primary {
+  background: var(--bordo);
+  border-color: rgba(193,18,31,.35);
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn.danger {
+  background: rgba(255,107,107,.12);
+  border-color: rgba(255,107,107,.25);
+  color: #ffb6b6;
+}
+
+/* ========== Layout helpers used by pages ========== */
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar .input,
+.toolbar select {
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* ========== Mobile tweaks ========== */
+@media (max-width: 640px) {
+  .page { padding: 14px; border-radius: 12px; }
+  .grid { grid-template-columns: 1fr; }
 }

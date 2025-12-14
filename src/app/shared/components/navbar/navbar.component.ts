@@ -1,32 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  template: `
-    <header class="app-header">
-      <div class="brand"> 🎮YenzaPlayG</div>
-
-      <nav class="nav">
-        <a
-          routerLink="/explorar"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Explorar
-        </a>
-
-        <a routerLink="/favoritos" routerLinkActive="active">Favoritos</a>
-        <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
-      </nav>
-
-      <nav class="auth">
-        <a routerLink="/auth/login" routerLinkActive="active">Ingresar</a>
-        <a routerLink="/auth/register" class="btn-primary">Crear cuenta</a>
-      </nav>
-    </header>
-  `,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
+  templateUrl: './navbar.component.html',
+  styleUrl: './navbar.component.css',
 })
-export class NavbarComponent {}
+export class NavbarComponent {
+  private auth = inject(AuthService);
+
+  user = computed(() => this.auth.user() as any); // (any) para no pelear con tipos ahora
+  email = computed(() => this.user()?.email ?? null);
+  emailVerified = computed(() => !!this.user()?.emailVerified);
+
+  initial = computed(() => {
+    const e = this.email();
+    return e ? e.trim()[0]?.toUpperCase() : '👤';
+  });
+
+  logout() {
+    this.auth.logout();
+  }
+}

@@ -1,7 +1,26 @@
-import { Component, Input, inject, computed } from '@angular/core';
+import { Component, Input, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FavoritesService } from '../../../core/services/favorites.service';
+import { ToastStore } from '../../../core/services/toast.store';
+
+const FALLBACK_IMG =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="450">
+    <defs>
+      <linearGradient id="g" x1="0" x2="1">
+        <stop offset="0" stop-color="#111827"/>
+        <stop offset="1" stop-color="#1f2937"/>
+      </linearGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#g)"/>
+    <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
+      fill="#9ca3af" font-family="system-ui,Segoe UI,Roboto,Arial" font-size="28">
+      Imagen no disponible
+    </text>
+  </svg>
+`);
 
 @Component({
   selector: 'app-game-card',
@@ -11,12 +30,16 @@ import { FavoritesService } from '../../../core/services/favorites.service';
     <article class="card" (click)="goToDetail()">
       <div class="card-image">
         <img
-          [src]="game?.thumbnail"
+          [src]="imgSrc()"
           [alt]="game?.title"
           [attr.loading]="eager ? 'eager' : 'lazy'"
           [attr.fetchpriority]="eager ? 'high' : 'auto'"
           decoding="async"
+          referrerpolicy="no-referrer"
+          (error)="onImgError()"
         />
+
+        <span class="badge" *ngIf="game?.status">{{ game.status }}</span>
 
         <button
           class="fav-btn"
@@ -53,7 +76,20 @@ import { FavoritesService } from '../../../core/services/favorites.service';
     }
 
     .card-image{ position:relative; }
-    img{ width:100%; height:170px; object-fit:cover; display:block; }
+    img{ width:100%; height:170px; object-fit:cover; display:block; background:#0f0f18; }
+
+    .badge{
+      position:absolute;
+      top:10px; left:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.75rem;
+      letter-spacing:.2px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.45);
+      color:#e6e6f0;
+      backdrop-filter: blur(6px);
+    }
 
     .fav-btn{
       position:absolute;
@@ -93,14 +129,34 @@ export class GameCardComponent {
 
   private router = inject(Router);
   private favs = inject(FavoritesService);
+  private toast = inject(ToastStore);
+
+  private imgFailed = signal(false);
+
+  imgSrc = computed(() => {
+    const src = this.game?.thumbnail;
+    if (!this.imgFailed() && typeof src === 'string' && src.length) return src;
+    return FALLBACK_IMG;
+  });
 
   isFav = computed(() => {
-    this.favs.ids(); // ✅ dependencia reactiva explícita
+    this.favs.ids(); // dependencia reactiva
     return this.favs.has(this.game?.id);
   });
 
+  onImgError() {
+    this.imgFailed.set(true);
+  }
+
   toggleFav() {
+    const was = this.isFav();
     this.favs.toggle(this.game.id);
+
+    this.toast.show(
+      was ? 'warning' : 'success',
+      was ? 'Favorito quitado' : 'Agregado a favoritos',
+      this.game?.title
+    );
   }
 
   goToDetail() {

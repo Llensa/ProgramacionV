@@ -1,0 +1,117 @@
+.app-header{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, var(--blue-900), rgba(13, 27, 42, 0.85));
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+
+.brand{
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav a, .auth a{
+  color: var(--text);
+  text-decoration: none;
+  margin: 0 8px;
+  opacity: .85;
+}
+
+.nav a.active{
+  border-bottom: 2px solid var(--accent);
+  opacity: 1;
+}
+
+.auth .btn-primary{
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--bordo);
+  color: white;
+  font-weight: 700;
+}
+
+.userbox{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.avatar{
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.25);
+  font-weight: 800;
+}
+
+.usertext{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+  max-width: 220px;
+}
+
+.mail{
+  font-size:.85rem;
+  color: rgba(230,230,240,.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge{
+  margin-top:4px;
+  font-size:.72rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  width: fit-content;
+  border: 1px solid rgba(90, 220, 160, .35);
+  color: rgba(90, 220, 160, .95);
+  background: rgba(0,0,0,.18);
+}
+.badge.bad{
+  border-color: rgba(255, 216, 107, .35);
+  color: rgba(255, 216, 107, .95);
+}
+
+.logout{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.logout:hover{ filter: brightness(1.1); }
+
+@media (max-width: 640px){
+  .app-header{
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .nav, .auth{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:space-between;
+  }
+  .userbox{
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  .usertext{ max-width: 100%; }
+}
