@@ -18,5 +18,24 @@
     "location": "southamerica-west1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix functions run lint",
+ 	 "npm --prefix functions run build"
+      ]
+    }
+  ]
 }

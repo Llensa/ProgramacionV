@@ -79,7 +79,10 @@
   </ng-template>
 
   <div class="body">
-    <p class="desc">{{ g.description }}</p>
+    <p class="desc">
+      {{ g.description }}
+    </p>
+
     <section class="req" *ngIf="g.minimum_system_requirements as r">
       <h2 class="reqTitle">Requisitos mínimos</h2>
 
@@ -91,12 +94,19 @@
         <div class="reqItem"><span class="k">Storage</span><span class="v">{{ r.storage || '—' }}</span></div>
       </div>
     </section>
+
     <div class="actions" *ngIf="g.game_url">
       <a class="btn primary" [href]="g.game_url" target="_blank" rel="noopener">
         Descargar / Sitio oficial
       </a>
     </div>
   </div>
+
+  <app-game-community
+    [gameId]="g.id"
+    [gameTitle]="g.title"
+    [gameThumb]="g.thumbnail">
+  </app-game-community>
 </section>
 
 <p class="state muted" *ngIf="loading()">Cargando...</p>

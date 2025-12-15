@@ -37,7 +37,7 @@ export class RegisterPage {
     const { name, email, password } = this.form.getRawValue();
 
     try {
-      await this.auth.register(name, email, password);
+      await this.auth.register(email, password, name);
       this.toast.show('success', 'Cuenta creada', 'Ya podés usar Favoritos.');
       await this.router.navigateByUrl('/explorar');
     } catch (e: any) {

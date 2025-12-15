@@ -1,0 +1,39 @@
+<section class="page">
+  <header class="head">
+    <h1>Comunidad</h1>
+    <p class="muted">Actividad y juegos más comentados</p>
+  </header>
+
+  <div class="cols">
+    <section class="card">
+      <h2 class="h2">Top comentados</h2>
+
+      <a class="row"
+         *ngFor="let g of topGames()"
+         [routerLink]="['/juego', g.gameId]">
+        <div class="left">
+          <div class="t">Juego #{{ g.gameId }}</div>
+          <div class="m">💬 {{ g.commentCount || 0 }} · ⭐ {{ g.ratingAvg || 0 }} ({{ g.ratingCount || 0 }})</div>
+        </div>
+        <div class="go">›</div>
+      </a>
+
+      <p class="muted" *ngIf="!topGames().length">Todavía no hay actividad.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="h2">Últimos comentarios</h2>
+
+      <article class="c" *ngFor="let c of recent()">
+        <div class="line">
+          <b>{{ c.displayName }}</b>
+          <span class="muted">en</span>
+          <a [routerLink]="['/juego', c.gameId]">{{ c.gameTitle }}</a>
+        </div>
+        <p class="txt">{{ c.text }}</p>
+      </article>
+
+      <p class="muted" *ngIf="!recent().length">Todavía no hay comentarios.</p>
+    </section>
+  </div>
+</section>

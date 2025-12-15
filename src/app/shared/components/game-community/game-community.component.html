@@ -1,0 +1,113 @@
+<section class="gc">
+  <header class="gc-head">
+    <div class="gc-title">
+      <h2>Comunidad</h2>
+      <p class="muted">Calificá y dejá tu comentario</p>
+    </div>
+
+    <div class="gc-stats" *ngIf="gamePublic() as pub">
+      <div class="stat">
+        <div class="k">Rating</div>
+        <div class="v">⭐ {{ pub.ratingAvg || 0 }} <span class="muted">({{ pub.ratingCount || 0 }})</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">Comentarios</div>
+        <div class="v">💬 {{ pub.commentCount || 0 }}</div>
+      </div>
+    </div>
+  </header>
+
+  <p class="gc-error" *ngIf="err()">{{ err() }}</p>
+
+  <!-- Rating -->
+  <div class="rate">
+    <div class="label">Tu calificación</div>
+    <div class="stars" *ngIf="myRating() as r; else noRating">
+      <button
+        *ngFor="let s of stars"
+        type="button"
+        class="star"
+        [class.on]="s <= (r?.value ?? 0)"
+        (click)="rate(s)"
+        [disabled]="busy()"
+        [attr.aria-label]="'Calificar ' + s"
+      >★</button>
+    </div>
+
+    <ng-template #noRating>
+      <div class="stars">
+        <button
+          *ngFor="let s of stars"
+          type="button"
+          class="star"
+          (click)="rate(s)"
+          [disabled]="busy()"
+          [attr.aria-label]="'Calificar ' + s"
+        >☆</button>
+      </div>
+    </ng-template>
+
+    <p class="hint muted" *ngIf="!uid()">Iniciá sesión para calificar/comentar.</p>
+    <p class="hint muted" *ngIf="uid() && !emailVerified()">Verificá tu email para poder publicar.</p>
+  </div>
+
+  <!-- Nuevo comentario -->
+  <div class="new">
+    <textarea
+      class="box"
+      rows="3"
+      placeholder="Escribí un comentario (3 a 500 caracteres)…"
+      [value]="commentText()"
+      (input)="commentText.set(($any($event.target).value))"
+      [disabled]="busy()"
+    ></textarea>
+
+    <div class="row">
+      <span class="muted">{{ commentText().length }} / 500</span>
+      <button class="btn" type="button" (click)="sendComment()" [disabled]="busy()">
+        Publicar
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista -->
+  <div class="list" *ngIf="comments().length; else empty">
+    <article class="c" *ngFor="let c of comments()">
+      <header class="c-head">
+        <div class="who">
+          <span class="name">{{ c.displayName }}</span>
+          <span class="muted">·</span>
+          <span class="muted">#{{ c.gameId }}</span>
+        </div>
+
+        <div class="actions" *ngIf="uid() === c.uid">
+          <button class="link" type="button" (click)="startEdit(c)" *ngIf="editId() !== c.id">Editar</button>
+          <button class="link" type="button" (click)="remove(c.gameId, c.id)" [disabled]="busy()">Borrar</button>
+        </div>
+      </header>
+
+      <div *ngIf="editId() === c.id; else view">
+        <textarea
+          class="box"
+          rows="3"
+          [value]="editText()"
+          (input)="editText.set(($any($event.target).value))"
+          [disabled]="busy()"
+        ></textarea>
+
+        <div class="row">
+          <button class="link" type="button" (click)="cancelEdit()" [disabled]="busy()">Cancelar</button>
+          <button class="btn" type="button" (click)="saveEdit(c.gameId)" [disabled]="busy()">Guardar</button>
+        </div>
+      </div>
+
+      <ng-template #view>
+        <p class="text">{{ c.text }}</p>
+      </ng-template>
+    </article>
+  </div>
+
+  <ng-template #empty>
+    <p class="muted">Todavía no hay comentarios. Sé el primero 😈</p>
+  </ng-template>
+</section>

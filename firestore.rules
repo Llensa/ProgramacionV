@@ -29,26 +29,18 @@ service cloud.firestore {
 
     // ======= PUBLIC GAME STATS =======
     match /games_public/{gameId} {
-      // cualquiera puede leer stats
       allow read: if true;
-
-      // nadie escribe directo (se actualiza con Cloud Function)
       allow create, update, delete: if false;
 
       // ======= RATINGS =======
       match /ratings/{uid} {
-        // cualquiera puede leer ratings (opcional: ponelo true o solo signedIn)
         allow read: if true;
 
-        // crear/editar mi rating (solo con email verificado)
         allow create, update: if emailVerified()
           && request.auth.uid == uid
           && validRating()
-          && request.resource.data.keys().hasOnly(['value','createdAt','updatedAt'])
-          // createdAt solo al crear, updatedAt al actualizar (lo controlás desde app)
-          ;
+          && request.resource.data.keys().hasOnly(['value','createdAt','updatedAt']);
 
-        // borrar mi rating
         allow delete: if emailVerified() && request.auth.uid == uid;
       }
 
@@ -56,27 +48,38 @@ service cloud.firestore {
       match /comments/{commentId} {
         allow read: if true;
 
-        // crear comentario (solo con email verificado)
         allow create: if emailVerified()
           && validCommentText()
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.keys().hasOnly(['uid','displayName','text','createdAt','updatedAt']);
 
-        // editar comentario (solo dueño)
         allow update: if emailVerified()
           && isOwner(resource.data.uid)
           && validCommentText()
-          // no permitimos cambiar uid/createdAt, solo displayName/text/updatedAt
           && request.resource.data.uid == resource.data.uid
           && request.resource.data.createdAt == resource.data.createdAt
           && request.resource.data.keys().hasOnly(['uid','displayName','text','createdAt','updatedAt']);
 
-        // borrar comentario (solo dueño)
         allow delete: if emailVerified() && isOwner(resource.data.uid);
       }
     }
 
-    // Opcional: feed global con collectionGroup ya que es subcolección.
-    // No hace falta regla extra: está cubierto por /games_public/{gameId}/comments/{commentId}
+    // ======= TRANSLATIONS CACHE =======
+    match /translations/{docId} {
+      allow read: if true;
+
+      allow create, update: if emailVerified()
+        && request.resource.data.gameId is int
+        && request.resource.data.lang is string
+        && request.resource.data.text is string
+        && request.resource.data.provider is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 8000
+        && request.resource.data.keys().hasOnly([
+          'gameId','lang','text','provider','title','createdAt','updatedAt'
+        ]);
+
+      allow delete: if false;
+    }
   }
 }

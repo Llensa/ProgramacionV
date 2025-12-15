@@ -29,6 +29,19 @@ export const routes: Routes = [
   },
 
   {
+    path: 'comunidad',
+    loadComponent: () =>
+      import('./features/comunidad/comunidad.page').then((m) => m.ComunidadPage),
+  },
+
+  {
+    path: 'cuenta',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/cuenta/cuenta.page').then((m) => m.CuentaPage),
+  },
+
+  {
     path: 'auth/login',
     loadComponent: () =>
       import('./features/auth/login.page').then((m) => m.LoginPage),
@@ -39,6 +52,7 @@ export const routes: Routes = [
       import('./features/auth/register.page').then((m) => m.RegisterPage),
   },
 
+  // ✅ SIEMPRE AL FINAL
   {
     path: '**',
     loadComponent: () =>

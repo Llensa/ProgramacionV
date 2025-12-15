@@ -1,0 +1,125 @@
+.gc{
+  margin-top: 16px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(0,0,0,.14);
+}
+
+.gc-head{
+  display:flex;
+  justify-content: space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap: wrap;
+}
+
+.gc-title h2{
+  margin:0;
+  font-size: 1.05rem;
+  color: rgba(230,240,255,.95);
+}
+.gc-title p{ margin:4px 0 0; }
+
+.gc-stats{
+  display:flex;
+  gap:10px;
+  flex-wrap: wrap;
+}
+.stat{
+  border:1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 160px;
+}
+.stat .k{ font-size:.78rem; color: rgba(220,230,255,.6); text-transform: uppercase; letter-spacing:.4px; }
+.stat .v{ margin-top:4px; color: rgba(230,240,255,.9); font-weight:700; }
+
+.gc-error{
+  margin: 10px 0 0;
+  color: #ff6b6b;
+}
+
+.rate{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.label{ font-weight:700; margin-bottom: 6px; }
+
+.stars{ display:flex; gap:6px; flex-wrap: wrap; }
+.star{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.22);
+  color: rgba(230,240,255,.8);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor:pointer;
+}
+.star.on{
+  color:#ffd86b;
+  border-color: rgba(255,216,107,.35);
+}
+.hint{ margin: 8px 0 0; }
+
+.new{ margin-top: 12px; }
+.box{
+  width:100%;
+  border-radius: 12px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.22);
+  color: rgba(230,240,255,.92);
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.row{
+  margin-top: 8px;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap: wrap;
+}
+
+.btn{
+  border:1px solid rgba(164,112,255,.35);
+  background: rgba(164,112,255,.92);
+  color:#0b0f18;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor:pointer;
+}
+.btn:disabled{ opacity:.6; cursor: default; }
+
+.link{
+  background: transparent;
+  border: none;
+  color: rgba(170,190,255,.9);
+  cursor:pointer;
+  padding: 6px 8px;
+}
+
+.list{ margin-top: 12px; display:grid; gap:10px; }
+
+.c{
+  border:1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.16);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.c-head{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap: wrap;
+}
+.name{ font-weight: 800; }
+.text{ margin: 8px 0 0; color: rgba(230,240,255,.88); line-height: 1.55; }
+
+@media (max-width: 640px){
+  .stat{ min-width: 140px; }
+}

@@ -7,21 +7,23 @@
     <a routerLink="/explorar" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Explorar</a>
     <a routerLink="/favoritos" routerLinkActive="active">Favoritos</a>
     <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
+    <a routerLink="/comunidad" routerLinkActive="active">Comunidad</a>
+    <a routerLink="/cuenta" routerLinkActive="active" *ngIf="isLogged()">Cuenta</a>
   </nav>
 
-  <nav class="auth" *ngIf="!email(); else logged">
+  <nav class="auth" *ngIf="!isLogged(); else logged">
     <a routerLink="/auth/login" routerLinkActive="active">Ingresar</a>
     <a routerLink="/auth/register" class="btn-primary">Crear cuenta</a>
   </nav>
 
   <ng-template #logged>
     <div class="userbox">
-      <div class="avatar" [title]="email()">
+      <div class="avatar" [title]="displayName()">
         {{ initial() }}
       </div>
 
       <div class="usertext">
-        <div class="mail">{{ email() }}</div>
+        <div class="name">{{ displayName() }}</div>
         <div class="badge" [class.bad]="!emailVerified()">
           {{ emailVerified() ? 'Verificado' : 'No verificado' }}
         </div>

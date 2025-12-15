@@ -2,10 +2,12 @@
   position: sticky;
   top: 0;
   z-index: 10;
+
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 220px 1fr auto; /* brand | nav | user/auth */
   gap: 16px;
   align-items: center;
+
   padding: 12px 20px;
   background: linear-gradient(180deg, var(--blue-900), rgba(13, 27, 42, 0.85));
   border-bottom: 1px solid var(--border);
@@ -18,18 +20,35 @@
   color: var(--text);
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+}
+
+.nav{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 18px;
+  flex-wrap: wrap;
 }
 
 .nav a, .auth a{
   color: var(--text);
   text-decoration: none;
-  margin: 0 8px;
   opacity: .85;
+  padding: 6px 4px;
 }
 
 .nav a.active{
   border-bottom: 2px solid var(--accent);
   opacity: 1;
+}
+
+.auth{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap: 12px;
+  white-space: nowrap;
 }
 
 .auth .btn-primary{
@@ -44,6 +63,8 @@
   display:flex;
   align-items:center;
   gap:10px;
+  justify-content:flex-end;
+  min-width: 0;
 }
 
 .avatar{
@@ -55,6 +76,7 @@
   border: 1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.25);
   font-weight: 800;
+  flex: 0 0 auto;
 }
 
 .usertext{
@@ -62,10 +84,11 @@
   flex-direction:column;
   line-height:1.1;
   max-width: 220px;
+  min-width: 0;
 }
 
-.mail{
-  font-size:.85rem;
+.name{
+  font-size:.9rem;
   color: rgba(230,230,240,.92);
   white-space: nowrap;
   overflow: hidden;
@@ -94,24 +117,28 @@
   border-radius: 10px;
   padding: 8px 10px;
   cursor: pointer;
+  flex: 0 0 auto;
 }
 .logout:hover{ filter: brightness(1.1); }
 
+/* ✅ Mobile */
 @media (max-width: 640px){
   .app-header{
     grid-template-columns: 1fr;
     gap: 10px;
     padding: 12px 14px;
   }
-  .nav, .auth{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    justify-content:space-between;
+
+  .nav{
+    justify-content: center;
+    gap: 12px;
   }
+
   .userbox{
-    justify-content:space-between;
-    flex-wrap:wrap;
+    justify-content: space-between;
   }
-  .usertext{ max-width: 100%; }
+
+  .usertext{
+    max-width: 100%;
+  }
 }

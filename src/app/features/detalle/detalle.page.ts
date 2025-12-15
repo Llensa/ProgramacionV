@@ -5,19 +5,20 @@ import {
   signal,
   computed,
   DestroyRef,
-  HostListener
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { GameCommunityComponent } from '../../shared/components/game-community/game-community.component';
 import { GamesApiService } from '../../core/api/games-api';
 import { FavoritesService } from '../../core/services/favorites.service';
 
 @Component({
   selector: 'app-detalle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GameCommunityComponent],
   templateUrl: './detalle.page.html',
   styleUrl: './detalle.page.css',
 })
@@ -51,7 +52,7 @@ export class DetallePage implements OnInit {
 
   // ✅ Reactivo real: si cambiás favoritos desde otra pantalla, esto se actualiza
   fav = computed(() => {
-    this.favs.ids(); // dependencia reactiva explícita (ids es Signal)
+    this.favs.ids(); // dependencia reactiva explícita
     const id = this.idSig();
     return id !== null ? this.favs.has(id) : false;
   });
@@ -71,7 +72,7 @@ export class DetallePage implements OnInit {
         this.loadGame(id);
       });
 
-    // Si cambia el set de imágenes (nuevo juego o recarga), clamp del índice
+    // Clamp del índice si cambia el set de imágenes
     computed(() => {
       const total = this.mediaUrls().length;
       const i = this.activeIndex();
@@ -119,15 +120,16 @@ export class DetallePage implements OnInit {
   onPointerDown(ev: PointerEvent) {
     this.startX = ev.clientX;
   }
+
   onPointerUp(ev: PointerEvent) {
     if (this.startX === null) return;
     const dx = ev.clientX - this.startX;
     this.startX = null;
 
-    // umbral
     if (Math.abs(dx) < 40) return;
     dx > 0 ? this.prev() : this.next();
   }
+
   onPointerCancel() {
     this.startX = null;
   }
