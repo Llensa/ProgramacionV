@@ -37,7 +37,6 @@ export class DetallePage implements OnInit {
   // Slider
   activeIndex = signal(0);
 
-  // URLs de media: screenshots si hay, si no thumbnail
   mediaUrls = computed<string[]>(() => {
     const g = this.game();
     const shots = (g?.screenshots ?? [])
@@ -50,9 +49,9 @@ export class DetallePage implements OnInit {
     return typeof thumb === 'string' && thumb.length ? [thumb] : [];
   });
 
-  // ✅ Reactivo real: si cambiás favoritos desde otra pantalla, esto se actualiza
+  // ✅ Reactivo real: si cambiás favoritos desde otra pantalla, se actualiza
   fav = computed(() => {
-    this.favs.ids(); // dependencia reactiva explícita
+    this.favs.ids(); // dependencia
     const id = this.idSig();
     return id !== null ? this.favs.has(id) : false;
   });
@@ -72,7 +71,7 @@ export class DetallePage implements OnInit {
         this.loadGame(id);
       });
 
-    // Clamp del índice si cambia el set de imágenes
+    // clamp índice
     computed(() => {
       const total = this.mediaUrls().length;
       const i = this.activeIndex();
@@ -107,14 +106,12 @@ export class DetallePage implements OnInit {
     this.activeIndex.set(i);
   }
 
-  // Teclado
   @HostListener('window:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
     if (e.key === 'ArrowLeft') this.prev();
     if (e.key === 'ArrowRight') this.next();
   }
 
-  // Swipe (móvil)
   private startX: number | null = null;
 
   onPointerDown(ev: PointerEvent) {
@@ -125,7 +122,6 @@ export class DetallePage implements OnInit {
     if (this.startX === null) return;
     const dx = ev.clientX - this.startX;
     this.startX = null;
-
     if (Math.abs(dx) < 40) return;
     dx > 0 ? this.prev() : this.next();
   }

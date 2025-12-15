@@ -32,7 +32,11 @@ export class CuentaPage {
   nameStatus = signal<{ ok: boolean; text: string } | null>(null);
 
   form = this.fb.nonNullable.group({
-    displayName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]),
+    displayName: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(2),
+      Validators.maxLength(20),
+    ]),
 
     emailNotifications: this.fb.nonNullable.control(true),
     notifyOnReplies: this.fb.nonNullable.control(true),
@@ -53,12 +57,13 @@ export class CuentaPage {
 
         try {
           const prefs = await this.profile.loadPrefs(uid);
-          this.form.patchValue({ displayName: dn, ...prefs });
+          queueMicrotask(() => this.form.patchValue({ displayName: dn, ...prefs }));
         } catch {
-          this.form.patchValue({ displayName: dn });
+          queueMicrotask(() => this.form.patchValue({ displayName: dn }));
         }
       });
   }
+
 
   async refreshUser() {
     const u = this.auth.currentUser;
@@ -66,7 +71,12 @@ export class CuentaPage {
 
     this.busy.set(true);
     try {
+      // ✅ 1) trae cambios de Firebase Auth (emailVerified, displayName, etc.)
       await u.reload();
+
+      // ✅ 2) fuerza token nuevo -> actualiza request.auth.token.email_verified en Firestore rules
+      await u.getIdToken(true);
+      this.me.set(u as any);
       this.toast.show('success', 'Listo', 'Datos actualizados.');
     } finally {
       this.busy.set(false);
@@ -79,7 +89,7 @@ export class CuentaPage {
 
     this.busy.set(true);
     try {
-      await sendEmailVerification(u); // ✅ así es en modular
+      await sendEmailVerification(u);
       this.toast.show('success', 'Enviado', 'Te mandé el mail de verificación.');
     } catch {
       this.toast.show('error', 'Error', 'No se pudo enviar el email.');

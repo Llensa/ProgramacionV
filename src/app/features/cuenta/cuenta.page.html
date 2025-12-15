@@ -11,84 +11,100 @@
       </button>
     </header>
 
-    <section class="block">
-      <div class="userline">
-        <div class="avatar">{{ (form.get('displayName')?.value || 'U')[0] }}</div>
+    <!-- ✅ IMPORTANTE: envolver TODO lo que usa formControlName -->
+    <form [formGroup]="form" (ngSubmit)="saveProfile()">
 
-        <div class="uinfo">
-          <div class="u1">{{ email() }}</div>
-          <div class="badge" [class.bad]="!emailVerified()">
-            {{ emailVerified() ? 'Verificado' : 'No verificado' }}
+      <section class="block">
+        <div class="userline">
+          <div class="avatar">{{ (form.get('displayName')?.value || 'U')[0] }}</div>
+
+          <div class="uinfo">
+            <div class="u1">{{ email() }}</div>
+            <div class="badge" [class.bad]="!emailVerified()">
+              {{ emailVerified() ? 'Verificado' : 'No verificado' }}
+            </div>
+            <div class="muted tip" *ngIf="!emailVerified()">
+              Tip: revisá Spam/Promociones y después tocá “Refrescar”.
+            </div>
           </div>
-          <div class="muted tip" *ngIf="!emailVerified()">
-            Tip: revisá Spam/Promociones y después tocá “Refrescar”.
-          </div>
+
+          <button class="btn warn" type="button" (click)="resendVerification()" [disabled]="busy() || emailVerified()">
+            Reenviar verificación
+          </button>
         </div>
+      </section>
 
-        <button class="btn warn" type="button" (click)="resendVerification()" [disabled]="busy() || emailVerified()">
-          Reenviar verificación
-        </button>
+      <div class="muted" *ngIf="uid() as id">
+        UID: <code>{{ id }}</code>
       </div>
-    </section>
 
-    <section class="block">
-      <h2>Perfil</h2>
+      <section class="block">
+        <h2>Perfil</h2>
 
-      <div class="row">
-        <div class="field">
-          <label>Nombre visible</label>
-          <input class="input" type="text" maxlength="20" formControlName="displayName" (blur)="onCheckName()" />
-          <div class="muted small">Este nombre se usa en comentarios y comunidad.</div>
-
-          <div class="nameStatus"
-               *ngIf="nameStatus() as s"
-               [class.ok]="s.ok"
-               [class.bad]="!s.ok">
-            {{ s.text }}
-          </div>
-        </div>
-
-        <button class="btn" type="button" (click)="saveProfile()" [disabled]="busy()">
-          Guardar
-        </button>
-      </div>
-    </section>
-
-    <section class="block">
-      <h2>Preferencias</h2>
-
-      <div class="prefs">
-        <label class="check">
-          <input type="checkbox" formControlName="emailNotifications" />
-          <span>Recibir notificaciones por email</span>
-        </label>
-
-        <div class="grid">
-          <label class="check">
-            <input type="checkbox" formControlName="notifyOnReplies" />
-            <span>Avisarme si responden mis comentarios</span>
-          </label>
-
-          <label class="check">
-            <input type="checkbox" formControlName="notifyOnMentions" />
-            <span>Avisarme si me mencionan</span>
-          </label>
-
+        <div class="row">
           <div class="field">
-            <label>Frecuencia</label>
-            <select class="input" formControlName="frequency">
-              <option value="instant">Instantáneo</option>
-              <option value="daily">Diario</option>
-              <option value="weekly">Semanal</option>
-            </select>
-            <div class="muted small">Después lo usamos para mail real + digest.</div>
-          </div>
-        </div>
+            <label>Nombre visible</label>
+            <input
+              class="input"
+              type="text"
+              maxlength="20"
+              formControlName="displayName"
+              (blur)="onCheckName()"
+            />
+            <div class="muted small">Este nombre se usa en comentarios y comunidad.</div>
 
-        <button class="btn" type="button" (click)="saveProfile()" [disabled]="busy()">
-          Guardar preferencias
-        </button>
-      </div>
-    </section>
+            <div
+              class="nameStatus"
+              *ngIf="nameStatus() as s"
+              [class.ok]="s.ok"
+              [class.bad]="!s.ok">
+              {{ s.text }}
+            </div>
+          </div>
+
+          <button class="btn" type="submit" [disabled]="busy()">
+            Guardar
+          </button>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Preferencias</h2>
+
+        <div class="prefs">
+          <label class="check">
+            <input type="checkbox" formControlName="emailNotifications" />
+            <span>Recibir notificaciones por email</span>
+          </label>
+
+          <div class="grid">
+            <label class="check">
+              <input type="checkbox" formControlName="notifyOnReplies" />
+              <span>Avisarme si responden mis comentarios</span>
+            </label>
+
+            <label class="check">
+              <input type="checkbox" formControlName="notifyOnMentions" />
+              <span>Avisarme si me mencionan</span>
+            </label>
+
+            <div class="field">
+              <label>Frecuencia</label>
+              <select class="input" formControlName="frequency">
+                <option value="instant">Instantáneo</option>
+                <option value="daily">Diario</option>
+                <option value="weekly">Semanal</option>
+              </select>
+              <div class="muted small">Después lo usamos para mail real + digest.</div>
+            </div>
+          </div>
+
+          <button class="btn" type="button" (click)="saveProfile()" [disabled]="busy()">
+            Guardar preferencias
+          </button>
+        </div>
+      </section>
+
+    </form>
   </div>
 </section>

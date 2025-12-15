@@ -60,8 +60,10 @@ export class AuthService {
   async refreshUser() {
     const u = this.auth.currentUser;
     if (!u) return;
-    await reload(u);
+    await reload(u);             // actualiza emailVerified en el user
+    await u.getIdToken(true);    // ✅ fuerza token nuevo con email_verified
   }
+
 
   async setDisplayName(name: string) {
     const u = this.auth.currentUser;
