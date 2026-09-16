@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ToastStore } from '../../../core/services/toast.store';
-
+import { TruncatePipe } from '../../pipes/truncate.pipe';
 const FALLBACK_IMG =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(`
@@ -25,7 +25,7 @@ const FALLBACK_IMG =
 @Component({
   selector: 'app-game-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TruncatePipe],
   template: `
     <article class="card" (click)="goToDetail()">
       <div class="card-image">
@@ -56,7 +56,7 @@ const FALLBACK_IMG =
       <div class="card-content">
         <h3 class="title">{{ game?.title }}</h3>
         <p class="meta">{{ game?.genre }} · {{ game?.platform }}</p>
-        <p class="desc" *ngIf="game?.short_description">{{ game.short_description }}</p>
+        <p class="desc" *ngIf="game?.short_description">{{ game.short_description | truncate:100 }}</p>
       </div>
     </article>
   `,

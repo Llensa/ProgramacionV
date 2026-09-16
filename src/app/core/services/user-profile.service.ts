@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, updateProfile } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { runTransaction, serverTimestamp } from 'firebase/firestore';
@@ -18,6 +18,12 @@ export class UserProfileService {
   private auth = inject(Auth);
   private fs = inject(Firestore);
 
+  // Necesario para volver a entrar al contexto de inyección cuando las
+  // llamadas a Firebase ocurren después de un await (dentro de un subscribe,
+  // por ejemplo). Sin esto, AngularFire avisa por consola que se lo está
+  // usando fuera de contexto y puede provocar bugs de change detection.
+  private injector = inject(Injector);
+
   private normName(name: string) {
     return (name || '')
       .trim()
@@ -28,7 +34,7 @@ export class UserProfileService {
 
   async loadPrefs(uid: string): Promise<UserPrefs> {
     const ref = doc(this.fs, `users/${uid}`);
-    const snap = await getDoc(ref);
+    const snap = await runInInjectionContext(this.injector, () => getDoc(ref));
     const data = snap.exists() ? (snap.data() as any) : {};
     return {
       emailNotifications: !!data?.prefs?.emailNotifications,
@@ -41,13 +47,15 @@ export class UserProfileService {
   async savePrefs(uid: string, prefs: UserPrefs) {
     const userRef = doc(this.fs, `users/${uid}`);
 
-    await runTransaction(this.fs as any, async (tx: any) => {
-      tx.set(
-        userRef as any,
-        { prefs: { ...prefs, updatedAt: serverTimestamp() }, updatedAt: serverTimestamp() },
-        { merge: true }
-      );
-    });
+    await runInInjectionContext(this.injector, () =>
+      runTransaction(this.fs as any, async (tx: any) => {
+        tx.set(
+          userRef as any,
+          { prefs: { ...prefs, updatedAt: serverTimestamp() }, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+      })
+    );
   }
 
   async checkNameAvailable(uid: string, displayName: string): Promise<{ ok: boolean; reason?: string }> {
@@ -57,7 +65,7 @@ export class UserProfileService {
 
     const key = normalized.replace(/\s/g, '_');
     const ref = doc(this.fs, `usernames/${key}`);
-    const snap = await getDoc(ref);
+    const snap = await runInInjectionContext(this.injector, () => getDoc(ref));
 
     if (!snap.exists()) return { ok: true };
 
@@ -76,22 +84,31 @@ export class UserProfileService {
     const usernameRef = doc(this.fs, `usernames/${key}`);
     const userRef = doc(this.fs, `users/${uid}`);
 
-    await runTransaction(this.fs as any, async (tx: any) => {
-      const usernameSnap = await tx.get(usernameRef as any);
-      if (usernameSnap.exists()) {
-        const owner = usernameSnap.data()?.uid;
-        if (owner !== uid) throw new Error('Ese nombre ya está en uso.');
-      }
+    // Transacción atómica: o se reserva el nombre y se guarda el perfil,
+    // o no se escribe nada. Así nunca queda un perfil apuntando a un
+    // nombre que otro usuario ganó en el medio.
+    await runInInjectionContext(this.injector, () =>
+      runTransaction(this.fs as any, async (tx: any) => {
+        const usernameSnap = await tx.get(usernameRef as any);
+        if (usernameSnap.exists()) {
+          const owner = usernameSnap.data()?.uid;
+          if (owner !== uid) throw new Error('Ese nombre ya está en uso.');
+        }
 
-      tx.set(usernameRef as any, { uid, displayName: normalized, updatedAt: serverTimestamp() }, { merge: true });
-      tx.set(
-        userRef as any,
-        { displayName: normalized, displayNameKey: key, updatedAt: serverTimestamp() },
-        { merge: true }
-      );
-    });
+        tx.set(
+          usernameRef as any,
+          { uid, displayName: normalized, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+        tx.set(
+          userRef as any,
+          { displayName: normalized, displayNameKey: key, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+      })
+    );
 
-    // ✅ updateProfile viene de @angular/fire/auth (o firebase/auth), NO firestore
+    // updateProfile viene de @angular/fire/auth, NO de firestore
     await updateProfile(u, { displayName: normalized });
   }
 }
