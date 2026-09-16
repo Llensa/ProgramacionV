@@ -71,13 +71,7 @@ export class DetallePage implements OnInit {
         this.loadGame(id);
       });
 
-    // clamp índice
-    computed(() => {
-      const total = this.mediaUrls().length;
-      const i = this.activeIndex();
-      if (!total) return;
-      if (i >= total) this.activeIndex.set(0);
-    })();
+
   }
 
   toggleFav() {

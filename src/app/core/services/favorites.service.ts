@@ -51,16 +51,6 @@ export class FavoritesService {
     this.write([]);
   }
 
-  // ✅ aliases (por compatibilidad con código viejo)
-  isFavorite(id: number): boolean {
-    return this.has(id);
-  }
-
-  toggleFavorite(gameOrId: any): void {
-    const id = typeof gameOrId === 'number' ? gameOrId : Number(gameOrId?.id);
-    if (!Number.isFinite(id)) return;
-    this.toggle(id);
-  }
 
   private read(): number[] {
     try {

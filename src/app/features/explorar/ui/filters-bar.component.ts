@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
+import {Component, EventEmitter, Input, Output, computed, signal, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 
@@ -51,7 +51,7 @@ export type Filters = {
   `,
 })
 export class FiltersBarComponent {
-  private fb = new FormBuilder();
+  private fb = inject(FormBuilder);
 
   @Input() set value(v: Filters | undefined) {
     this.form.patchValue(v ?? {}, { emitEvent: false });
