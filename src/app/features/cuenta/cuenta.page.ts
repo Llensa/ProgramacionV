@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Auth, user, sendEmailVerification } from '@angular/fire/auth';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { AuthService } from '../../core/services/auth.service';
 import { ToastStore } from '../../core/services/toast.store';
 import { UserProfileService, UserPrefs, NotifyFreq } from '../../core/services/user-profile.service';
 
@@ -15,13 +15,15 @@ import { UserProfileService, UserPrefs, NotifyFreq } from '../../core/services/u
   styleUrl: './cuenta.page.css',
 })
 export class CuentaPage {
-  private auth = inject(Auth);
+  // El componente ya no inyecta Auth de Firebase: habla solo con AuthService.
+  private auth = inject(AuthService);
   private fb = inject(FormBuilder);
   private toast = inject(ToastStore);
   private profile = inject(UserProfileService);
   private destroyRef = inject(DestroyRef);
 
-  me$ = user(this.auth);
+  /** Stream del estado de sesión expuesto por el servicio */
+  me$ = this.auth.user$;
 
   me = signal<any | null>(null);
   uid = computed(() => this.me()?.uid ?? null);
@@ -64,32 +66,29 @@ export class CuentaPage {
       });
   }
 
-
+  /** Recarga el usuario desde Firebase (refresca emailVerified y el token) */
   async refreshUser() {
-    const u = this.auth.currentUser;
-    if (!u) return;
+    if (!this.auth.currentUser) return;
 
     this.busy.set(true);
     try {
-      // ✅ 1) trae cambios de Firebase Auth (emailVerified, displayName, etc.)
-      await u.reload();
-
-      // ✅ 2) fuerza token nuevo -> actualiza request.auth.token.email_verified en Firestore rules
-      await u.getIdToken(true);
-      this.me.set(u as any);
+      await this.auth.refreshUser();
+      this.me.set(this.auth.currentUser as any);
       this.toast.show('success', 'Listo', 'Datos actualizados.');
+    } catch {
+      this.toast.show('error', 'Error', 'No se pudieron actualizar los datos.');
     } finally {
       this.busy.set(false);
     }
   }
 
+  /** Reenvía el mail de verificación */
   async resendVerification() {
-    const u = this.auth.currentUser;
-    if (!u) return;
+    if (!this.auth.currentUser) return;
 
     this.busy.set(true);
     try {
-      await sendEmailVerification(u);
+      await this.auth.resendVerification();
       this.toast.show('success', 'Enviado', 'Te mandé el mail de verificación.');
     } catch {
       this.toast.show('error', 'Error', 'No se pudo enviar el email.');
@@ -98,6 +97,7 @@ export class CuentaPage {
     }
   }
 
+  /** Consulta si el nombre visible está disponible (colección usernames) */
   async onCheckName() {
     const uid = this.uid();
     if (!uid) return;
@@ -117,6 +117,7 @@ export class CuentaPage {
     }
   }
 
+  /** Guarda nombre visible + preferencias en Firestore */
   async saveProfile() {
     const uid = this.uid();
     if (!uid) return;

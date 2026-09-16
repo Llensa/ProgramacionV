@@ -1,68 +1,39 @@
-import { Component, DestroyRef, inject, signal } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { RouterLink } from "@angular/router";
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import {
-  Firestore,
-  collection,
-  collectionData,
-  collectionGroup,
-  query,
-  orderBy,
-  limit,
-} from "@angular/fire/firestore";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-
-// ✅ Tipos Firestore (firebase)
-import type { CollectionReference, Query } from "firebase/firestore";
-
-export interface PublicGameStats {
-  gameId?: string;         // idField
-  ratingAvg: number;
-  ratingCount: number;
-  commentCount: number;
-  updatedAt?: any;
-}
-
-export interface PublicComment {
-  id?: string;             // idField
-  gameId: number;
-  gameTitle: string;
-  uid: string;
-  displayName: string;
-  text: string;
-  createdAt?: any;
-  updatedAt?: any;
-}
+  CommunityService,
+  GamePublicDoc,
+  GameCommentDoc,
+} from '../../core/services/community.service';
 
 @Component({
-  selector: "app-comunidad",
+  selector: 'app-comunidad',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: "./comunidad.page.html",
-  styleUrl: "./comunidad.page.css",
+  templateUrl: './comunidad.page.html',
+  styleUrl: './comunidad.page.css',
 })
 export class ComunidadPage {
-  private fs = inject(Firestore);
+  private community = inject(CommunityService);
   private destroyRef = inject(DestroyRef);
 
-  topGames = signal<PublicGameStats[]>([]);
-  recent = signal<PublicComment[]>([]);
+  topGames = signal<GamePublicDoc[]>([]);
+  recent = signal<GameCommentDoc[]>([]);
 
   constructor() {
-    // ✅ TOP (games_public)
-    const topCol = collection(this.fs, "games_public") as CollectionReference<PublicGameStats>;
-    const topQ = query(topCol, orderBy("commentCount", "desc"), limit(10));
-
-    collectionData(topQ, { idField: "gameId" })
+    // La página ya no arma queries de Firestore: delega en el servicio,
+    // que es el único que conoce la estructura de las colecciones.
+    this.community
+      .watchTopGames(10)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((list) => this.topGames.set(list));
+      .subscribe(list => this.topGames.set(list));
 
-    // ✅ RECIENTES (collectionGroup comments)
-    const recentBase = collectionGroup(this.fs, "comments") as Query<PublicComment>;
-    const recentQ = query(recentBase, orderBy("createdAt", "desc"), limit(20));
-
-    collectionData(recentQ, { idField: "id" })
+    this.community
+      .watchRecentComments(20)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((list) => this.recent.set(list));
+      .subscribe(list => this.recent.set(list));
   }
 }

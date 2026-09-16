@@ -19,8 +19,16 @@ import { reload } from 'firebase/auth';
 export class AuthService {
   private auth = inject(Auth);
 
+  /** Observable del estado de sesión (para componentes que necesitan el stream) */
+  readonly user$ = authState(this.auth);
+
+  /** Usuario actual sincrónico (null si no hay sesión) */
+  get currentUser() {
+    return this.auth.currentUser;
+  }
+
   // Signal tipada (User | null)
-  user = toSignal(authState(this.auth), { initialValue: null as User | null });
+  user = toSignal(this.user$, { initialValue: null as User | null });
 
   isLoggedIn = computed(() => !!this.user());
   isVerified = computed(() => !!this.user()?.emailVerified);
