@@ -34,13 +34,9 @@ service cloud.firestore {
     // PUBLIC GAME STATS
     // =======================
     match /games_public/{gameId} {
-      // lo público se puede leer (si querés, después lo cerramos)
       allow read: if true;
 
-      // Tu transacción hace "upsert" de este doc desde el cliente.
-      // Permitimos create/update solo a emails verificados.
       allow create, update: if emailVerified()
-        // si viene gameId en data, debe coincidir con la ruta
         && (!('gameId' in request.resource.data) || request.resource.data.gameId == int(gameId))
         && onlyKeys([
           'gameId','gameTitle','gameThumb',
@@ -66,7 +62,6 @@ service cloud.firestore {
           && request.auth.uid == uid
           && validRating()
           && onlyKeys(['value','createdAt','updatedAt'])
-          // createdAt no se toca
           && request.resource.data.createdAt == resource.data.createdAt;
 
         allow delete: if emailVerified() && request.auth.uid == uid;
@@ -89,7 +84,6 @@ service cloud.firestore {
         allow update: if emailVerified()
           && isOwner(resource.data.uid)
           && validCommentText()
-          // no cambiar dueño / gameId / createdAt
           && request.resource.data.uid == resource.data.uid
           && request.resource.data.gameId == resource.data.gameId
           && request.resource.data.createdAt == resource.data.createdAt
@@ -105,20 +99,18 @@ service cloud.firestore {
     // =======================
     // USERS (perfil + prefs)
     // =======================
+    // FIX 1: user-profile.service.ts guarda 'displayNameKey' y un objeto
+    // anidado 'prefs' (no campos sueltos). Se agregan ambos a la lista.
     match /users/{uid} {
       allow read: if isOwner(uid);
 
-      // Permitimos guardar/actualizar perfil/prefs estando logueado.
-      // (No hace falta email verificado para esto)
       allow create, update: if isOwner(uid)
         && onlyKeys([
           'uid',
           'displayName',
+          'displayNameKey',
           'photoURL',
-          'emailNotifications',
-          'notifyOnReplies',
-          'notifyOnMentions',
-          'frequency',
+          'prefs',
           'updatedAt',
           'createdAt'
         ])
@@ -128,24 +120,28 @@ service cloud.firestore {
     }
 
     // =======================
-    // USERNAMES (nombre único)
-    // Doc id = nombre normalizado (ej: "yenza", "juanpi_20")
+    // USERNAMES (nombre unico)
+    // Doc id = nombre normalizado (ej: "yasuo_on_bush_33")
     // =======================
+    // FIX 2: setDisplayName() escribe 'updatedAt' (serverTimestamp), que no
+    // estaba permitido -> hasOnly() denegaba la escritura y, al estar dentro
+    // de runTransaction, arrastraba tambien a la escritura de users/.
+    // Ademas se quita la comparacion de 'createdAt', porque el servicio nunca
+    // escribe ese campo: comparar una clave inexistente hace fallar la regla.
     match /usernames/{name} {
       allow read: if true;
 
       // Reservar nombre si NO existe
       allow create: if signedIn()
-        && onlyKeys(['uid','displayName','createdAt'])
+        && onlyKeys(['uid','displayName','createdAt','updatedAt'])
         && request.resource.data.uid == request.auth.uid;
 
-      // Solo el dueño podría editar (idealmente NO se edita nunca)
+      // Solo el dueno puede re-escribir su propio nombre
       allow update: if isOwner(resource.data.uid)
-        && onlyKeys(['uid','displayName','createdAt'])
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.createdAt == resource.data.createdAt;
+        && onlyKeys(['uid','displayName','createdAt','updatedAt'])
+        && request.resource.data.uid == resource.data.uid;
 
-      // No borrar (para mantener unicidad). Si querés liberar nombres, lo hacemos con Cloud Function admin.
+      // No borrar (para mantener unicidad).
       allow delete: if false;
     }
   }
