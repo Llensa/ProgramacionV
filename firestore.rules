@@ -143,5 +143,20 @@ service cloud.firestore {
       // No borrar (para mantener unicidad).
       allow delete: if false;
     }
-  }
+  }    // =======================
+       // TRANSLATIONS (caché de traducciones)
+       // Doc id = {gameId}_{lang}_{field}
+       // =======================
+       match /translations/{id} {
+         allow read: if true;
+
+         allow create, update: if signedIn()
+           && onlyKeys([
+             'gameId','field','sourceLang','targetLang',
+             'sourceText','translatedText','provider','updatedAt'
+           ])
+           && request.resource.data.translatedText is string;
+
+         allow delete: if false;
+       }
 }

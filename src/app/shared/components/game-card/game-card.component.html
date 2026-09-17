@@ -2,14 +2,14 @@
   class="card"
   role="link"
   tabindex="0"
-  [attr.aria-label]="'Ver detalle de ' + game?.title"
+  [attr.aria-label]="'Ver detalle de ' + game.title"
   (click)="goToDetail()"
   (keydown)="onKeydown($event)"
 >
   <div class="card-image" [class.loaded]="imgLoaded()">
     <img
       [src]="imgSrc()"
-      [alt]="game?.title"
+      [alt]="game.title"
       [class.is-loaded]="imgLoaded()"
       [attr.loading]="eager ? 'eager' : 'lazy'"
       [attr.fetchpriority]="eager ? 'high' : 'auto'"
@@ -19,7 +19,7 @@
       (error)="onImgError()"
     />
 
-    <span class="badge" *ngIf="game?.status">{{ game.status }}</span>
+    <span class="badge" *ngIf="game.status">{{ game.status }}</span>
 
     <button
       class="fav-btn"
@@ -34,9 +34,9 @@
   </div>
 
   <div class="card-content">
-    <h3 class="title">{{ game?.title }}</h3>
-    <p class="meta">{{ game?.genre }} · {{ game?.platform }}</p>
-    <p class="desc" *ngIf="game?.short_description">
+    <h3 class="title">{{ game.title }}</h3>
+    <p class="meta">{{ game.genre }} · {{ game.platform }}</p>
+    <p class="desc" *ngIf="game.short_description">
       {{ game.short_description | truncate: 100 }}
     </p>
   </div>

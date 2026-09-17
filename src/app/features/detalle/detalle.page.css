@@ -288,3 +288,58 @@
 @media (max-width: 768px){
   .reqGrid{ grid-template-columns: 1fr; }
 }
+/* --- Traducción de descripción (módulo extra) --- */
+.descBlock { margin-top: 4px; }
+
+.descHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.btn.translate {
+  background: rgba(164, 112, 255, .14);
+  border: 1px solid rgba(164, 112, 255, .35);
+  color: #d9c7ff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: background .15s ease, transform .12s ease;
+}
+
+.btn.translate:hover:not(:disabled) {
+  background: rgba(164, 112, 255, .24);
+  transform: translateY(-1px);
+}
+
+.btn.translate:disabled { opacity: .55; cursor: default; }
+
+.tag {
+  font-size: .78rem;
+  color: rgba(220, 230, 255, .6);
+  border: 1px solid rgba(255, 255, 255, .08);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.transError { color: #ff6b6b; font-size: .9rem; margin-top: 8px; }
+.langLabel {
+  font-size: .85rem;
+  color: rgba(220, 230, 255, .7);
+}
+
+.langSelect {
+  background: #0f0f18;
+  color: #e6e6f0;
+  border: 1px solid #2a2a3a;
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+.langSelect:focus { outline: none; border-color: #a470ff; }
+.langSelect:disabled { opacity: .55; cursor: default; }

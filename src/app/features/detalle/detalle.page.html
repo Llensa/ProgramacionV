@@ -86,7 +86,42 @@
   </ng-template>
 
   <div class="body">
-    <p class="desc">{{ g.description }}</p>
+    <!-- Descripción con traducción automática (módulo extra) -->
+    <div class="descBlock">
+      <div class="descHead">
+        <label class="langLabel" for="lang">Idioma</label>
+        <select
+          id="lang"
+          class="langSelect"
+          [value]="targetLang()"
+          (change)="onLangChange($any($event.target).value)"
+          [disabled]="translating()"
+        >
+          <option *ngFor="let l of languages" [value]="l.code">{{ l.label }}</option>
+        </select>
+
+        <button
+          class="btn translate"
+          type="button"
+          (click)="onTranslate()"
+          [disabled]="translating() || !g.description"
+        >
+          <span *ngIf="translating()">Traduciendo...</span>
+          <span *ngIf="!translating() && !currentTranslation()">🌐 Traducir</span>
+          <span *ngIf="!translating() && currentTranslation()">
+            {{ showOriginal() ? '🌐 Ver traducción' : '🇬🇧 Ver original' }}
+          </span>
+        </button>
+
+        <span class="tag" *ngIf="isTranslated()">
+          Traducido automáticamente al {{ langLabel() }}
+        </span>
+      </div>
+
+      <p class="desc">{{ displayedDescription() }}</p>
+
+      <p class="transError" *ngIf="translationError()">{{ translationError() }}</p>
+    </div>
 
     <section class="req" *ngIf="g.minimum_system_requirements as r">
       <h2 class="reqTitle">Requisitos mínimos</h2>
