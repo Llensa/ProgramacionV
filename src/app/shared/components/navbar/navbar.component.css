@@ -115,17 +115,19 @@
   min-width: 0;
 }
 
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-sunken);
-  font-weight: 800;
-  flex: 0 0 auto;
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 6px;
+  border-radius: 12px;
+  min-width: 0;
+  transition: background .15s ease;
 }
+
+.userLink:hover { background: var(--surface-sunken); }
 
 .usertext {
   display: flex;

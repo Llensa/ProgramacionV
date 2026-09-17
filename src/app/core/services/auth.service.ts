@@ -7,6 +7,8 @@ import {
   authState,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   sendEmailVerification,
   sendPasswordResetEmail,
@@ -37,6 +39,32 @@ export class AuthService {
   isLoggedIn = computed(() => !!this.user());
   isVerified = computed(() => !!this.user()?.emailVerified);
 
+  /** Foto de perfil (la de Google si inició sesión con Google) */
+  photoURL = computed(() => this.user()?.photoURL ?? null);
+
+  /** Nombre visible con respaldo en la parte local del email */
+  displayName = computed(() => {
+    const u = this.user();
+    const dn = (u?.displayName ?? '').trim();
+    if (dn) return dn;
+    const email = String(u?.email ?? '').trim();
+    return email ? email.split('@')[0] : 'Usuario';
+  });
+
+  /**
+   * Proveedor con el que se autenticó: 'google' o 'password'.
+   * Sirve para mostrar el origen de la cuenta y ocultar acciones que no
+   * aplican (por ejemplo, verificar email en una cuenta de Google).
+   */
+  provider = computed<'google' | 'password' | null>(() => {
+    const u = this.user();
+    if (!u) return null;
+    const ids = u.providerData.map(p => p.providerId);
+    if (ids.includes('google.com')) return 'google';
+    return 'password';
+  });
+
+  // ---------- Email + contraseña ----------
   async register(email: string, password: string, displayName?: string) {
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
 
@@ -53,6 +81,22 @@ export class AuthService {
     return cred.user;
   }
 
+  // ---------- Google ----------
+  /**
+   * Inicia sesión con la cuenta de Google mediante ventana emergente.
+   * Firebase trae automáticamente displayName, email y photoURL, y marca
+   * el email como verificado (Google ya lo verificó).
+   */
+  async loginWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    // Fuerza el selector de cuenta: evita entrar siempre con la misma sesión
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    const cred = await signInWithPopup(this.auth, provider);
+    return cred.user;
+  }
+
+  // ---------- Comunes ----------
   async logout() {
     await signOut(this.auth);
   }

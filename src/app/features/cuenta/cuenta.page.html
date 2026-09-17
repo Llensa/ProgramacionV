@@ -1,57 +1,105 @@
 <section class="page">
-  <div class="card">
-    <header class="head">
-      <div>
-        <h1>Tu cuenta</h1>
-        <p class="muted">Gestioná tu perfil, verificación y preferencias.</p>
-      </div>
+  <div class="wrap">
 
-      <button class="btn ghost" type="button" (click)="refreshUser()" [disabled]="busy()">
-        Refrescar
-      </button>
-    </header>
+    <!-- ---------- Portada del perfil ---------- -->
+    <header class="hero">
+      <div class="heroBg"></div>
 
-    <!-- ✅ IMPORTANTE: envolver TODO lo que usa formControlName -->
-    <form [formGroup]="form" (ngSubmit)="saveProfile()">
+      <div class="heroContent">
+        <app-avatar
+          class="heroAvatar"
+          [photoURL]="photoURL()"
+          [name]="form.get('displayName')?.value || email() || 'U'"
+          [size]="88">
+        </app-avatar>
 
-      <section class="block">
-        <div class="userline">
-          <div class="avatar">{{ (form.get('displayName')?.value || 'U')[0] }}</div>
+        <div class="heroInfo">
+          <h1 class="heroName">{{ form.get('displayName')?.value || 'Tu cuenta' }}</h1>
+          <p class="heroEmail">{{ email() }}</p>
 
-          <div class="uinfo">
-            <div class="u1">{{ email() }}</div>
-            <div class="badge" [class.bad]="!emailVerified()">
-              {{ emailVerified() ? 'Verificado' : 'No verificado' }}
-            </div>
-            <div class="muted tip" *ngIf="!emailVerified()">
-              Tip: revisá Spam/Promociones y después tocá “Refrescar”.
-            </div>
+          <div class="chips">
+            <span class="chip" [class.ok]="emailVerified()" [class.warn]="!emailVerified()">
+              {{ emailVerified() ? '✓ Verificado' : '! Sin verificar' }}
+            </span>
+
+            <span class="chip provider" *ngIf="isGoogle()">Cuenta de Google</span>
+            <span class="chip provider" *ngIf="!isGoogle()">Email y contraseña</span>
+
+            <span class="chip muted" *ngIf="memberSince() as d">
+              Desde {{ d | date:'MMM y' }}
+            </span>
           </div>
+        </div>
 
-          <button class="btn warn" type="button" (click)="resendVerification()" [disabled]="busy() || emailVerified()">
-            Reenviar verificación
+        <div class="heroActions">
+          <button class="btn ghost" type="button" (click)="refreshUser()" [disabled]="busy()">
+            Refrescar
+          </button>
+
+          <button
+            class="btn warn"
+            type="button"
+            (click)="resendVerification()"
+            *ngIf="!emailVerified() && !isGoogle()"
+            [disabled]="busy()">
+            Verificar email
           </button>
         </div>
-      </section>
-
-      <div class="muted" *ngIf="uid() as id">
-        UID: <code>{{ id }}</code>
       </div>
+    </header>
 
+    <!-- ---------- Estadísticas ---------- -->
+    <div class="stats">
+      <div class="statCard">
+        <div class="statValue">{{ favCount() }}</div>
+        <div class="statLabel">Favoritos</div>
+      </div>
+      <div class="statCard">
+        <div class="statValue">{{ commentCount() }}</div>
+        <div class="statLabel">Comentarios</div>
+      </div>
+      <div class="statCard uidCard">
+        <div class="statLabel">Identificador</div>
+        <button class="uid" type="button" (click)="copyUid()" [title]="uid()">
+          <code>{{ uid() }}</code>
+          <span class="copyHint">{{ copied() ? '✓ Copiado' : 'Copiar' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="tipBar muted" *ngIf="!emailVerified() && !isGoogle()">
+      Revisá la carpeta de Spam o Promociones y después tocá <b>Refrescar</b>.
+      Hasta verificar tu email no vas a poder comentar ni calificar juegos.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="saveProfile()">
+
+      <!-- ---------- Perfil ---------- -->
       <section class="block">
-        <h2>Perfil</h2>
+        <div class="blockHead">
+          <h2>Perfil público</h2>
+          <p class="muted">Así te ven los demás en comentarios y comunidad.</p>
+        </div>
 
         <div class="row">
           <div class="field">
-            <label>Nombre visible</label>
+            <label for="dn">Nombre visible</label>
             <input
+              id="dn"
               class="input"
               type="text"
               maxlength="20"
               formControlName="displayName"
               (blur)="onCheckName()"
+              [class.invalid]="form.get('displayName')?.invalid && form.get('displayName')?.touched"
             />
-            <div class="muted small">Este nombre se usa en comentarios y comunidad.</div>
+
+            <div class="fieldFoot">
+              <span class="muted small">Entre 2 y 20 caracteres. Debe ser único.</span>
+              <span class="counter muted small">
+                {{ (form.get('displayName')?.value || '').length }} / 20
+              </span>
+            </div>
 
             <div
               class="nameStatus"
@@ -62,41 +110,51 @@
             </div>
           </div>
 
-          <button class="btn" type="submit" [disabled]="busy()">
-            Guardar
+          <button class="btn" type="submit" [disabled]="busy() || form.invalid">
+            {{ busy() ? 'Guardando...' : 'Guardar' }}
           </button>
         </div>
       </section>
 
+      <!-- ---------- Preferencias ---------- -->
       <section class="block">
-        <h2>Preferencias</h2>
+        <div class="blockHead">
+          <h2>Notificaciones</h2>
+          <p class="muted">Elegí qué querés recibir y con qué frecuencia.</p>
+        </div>
 
         <div class="prefs">
-          <label class="check">
+          <label class="switchRow">
             <input type="checkbox" formControlName="emailNotifications" />
-            <span>Recibir notificaciones por email</span>
+            <span class="switchText">
+              <b>Notificaciones por email</b>
+              <small class="muted">Resumen de actividad en tu casilla</small>
+            </span>
           </label>
 
-          <div class="grid">
-            <label class="check">
-              <input type="checkbox" formControlName="notifyOnReplies" />
-              <span>Avisarme si responden mis comentarios</span>
-            </label>
+          <label class="switchRow">
+            <input type="checkbox" formControlName="notifyOnReplies" />
+            <span class="switchText">
+              <b>Respuestas a mis comentarios</b>
+              <small class="muted">Cuando alguien responde algo que escribiste</small>
+            </span>
+          </label>
 
-            <label class="check">
-              <input type="checkbox" formControlName="notifyOnMentions" />
-              <span>Avisarme si me mencionan</span>
-            </label>
+          <label class="switchRow">
+            <input type="checkbox" formControlName="notifyOnMentions" />
+            <span class="switchText">
+              <b>Menciones</b>
+              <small class="muted">Cuando te nombran en la comunidad</small>
+            </span>
+          </label>
 
-            <div class="field">
-              <label>Frecuencia</label>
-              <select class="input" formControlName="frequency">
-                <option value="instant">Instantáneo</option>
-                <option value="daily">Diario</option>
-                <option value="weekly">Semanal</option>
-              </select>
-              <div class="muted small">Después lo usamos para mail real + digest.</div>
-            </div>
+          <div class="field freq">
+            <label for="freq">Frecuencia</label>
+            <select id="freq" class="input" formControlName="frequency">
+              <option value="instant">Instantánea</option>
+              <option value="daily">Resumen diario</option>
+              <option value="weekly">Resumen semanal</option>
+            </select>
           </div>
 
           <button class="btn" type="button" (click)="saveProfile()" [disabled]="busy()">

@@ -1,25 +1,39 @@
 <section class="auth-container">
   <div class="auth-card">
-    <h1>Crear Cuenta</h1>
-    <p class="subtitle">Únete para guardar tu colección.</p>
+    <h1>Crear cuenta</h1>
+    <p class="subtitle">Unite para guardar tu colección.</p>
+
+    <button type="button" class="btn-google" (click)="onGoogle()" [disabled]="googleLoading()">
+      <svg class="gIcon" viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      <span>{{ googleLoading() ? 'Conectando...' : 'Continuar con Google' }}</span>
+    </button>
+
+    <div class="divider"><span>o con tu email</span></div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
       <div class="field">
         <label for="name">Nombre de usuario</label>
         <input id="name" type="text" formControlName="name" placeholder="Ej: GamerOne"
+               autocomplete="nickname"
                [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched">
         @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-          <span class="hint error">El nombre es obligatorio.</span>
+        <span class="hint error">El nombre es obligatorio.</span>
         }
       </div>
 
       <div class="field">
         <label for="email">Email</label>
         <input id="email" type="email" formControlName="email" placeholder="hola@ejemplo.com"
+               autocomplete="email"
                [class.invalid]="form.get('email')?.invalid && form.get('email')?.touched">
         @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-          <span class="hint error">Ingresa un email válido.</span>
+        <span class="hint error">Ingresá un email válido.</span>
         }
       </div>
 
@@ -27,7 +41,8 @@
         <label for="pass">Contraseña</label>
         <div class="input-wrap">
           <input id="pass" [type]="showPassword() ? 'text' : 'password'"
-                 formControlName="password" placeholder="******"
+                 formControlName="password" placeholder="Mínimo 6 caracteres"
+                 autocomplete="new-password"
                  [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
           <button type="button" class="toggle-pass" (click)="togglePassword()"
                   [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
@@ -41,7 +56,7 @@
       </div>
 
       @if (error()) {
-        <div class="alert error">{{ error() }}</div>
+      <div class="alert error">{{ error() }}</div>
       }
 
       <button type="submit" class="btn-primary full" [disabled]="form.invalid || loading()">
@@ -49,7 +64,7 @@
       </button>
 
       <div class="footer">
-        <span>¿Ya tienes cuenta?</span>
+        <span>¿Ya tenés cuenta?</span>
         <a routerLink="/auth/login">Ingresar</a>
       </div>
     </form>

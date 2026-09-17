@@ -78,6 +78,7 @@
     <article class="c" *ngFor="let c of comments()">
       <header class="c-head">
         <div class="who">
+          <app-avatar [photoURL]="c.photoURL" [name]="c.displayName || 'Usuario'" [size]="30"></app-avatar>
           <span class="name">{{ c.displayName }}</span>
         </div>
 

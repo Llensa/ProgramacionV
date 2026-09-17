@@ -33,16 +33,16 @@
 
   <ng-template #logged>
     <div class="userbox">
-      <div class="avatar" [title]="displayName()">
-        {{ initial() }}
-      </div>
+      <a routerLink="/cuenta" class="userLink" [title]="displayName()">
+        <app-avatar [photoURL]="photoURL()" [name]="displayName()" [size]="36"></app-avatar>
 
-      <div class="usertext">
-        <div class="name">{{ displayName() }}</div>
-        <div class="badge" [class.bad]="!emailVerified()">
-          {{ emailVerified() ? 'Verificado' : 'No verificado' }}
+        <div class="usertext">
+          <div class="name">{{ displayName() }}</div>
+          <div class="badge" [class.bad]="!emailVerified()">
+            {{ emailVerified() ? 'Verificado' : 'No verificado' }}
+          </div>
         </div>
-      </div>
+      </a>
 
       <button class="logout" type="button" (click)="logout()">Salir</button>
     </div>

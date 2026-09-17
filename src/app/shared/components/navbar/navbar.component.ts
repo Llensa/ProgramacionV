@@ -5,11 +5,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { NotificationsStore } from '../../../core/services/notifications.store';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, AvatarComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -20,27 +21,16 @@ export class NavbarComponent {
 
   user = computed(() => this.auth.user() as any);
   emailVerified = computed(() => !!this.user()?.emailVerified);
-  isLogged = computed(() => !!this.user());
+  isLogged = this.auth.isLoggedIn;
+
+  /** Nombre y foto vienen del servicio: una sola fuente de verdad */
+  displayName = this.auth.displayName;
+  photoURL = this.auth.photoURL;
 
   /** Contador de notificaciones sin leer, para el globito del menú */
   unread = this.notifs.unreadCount;
 
   isDark = this.themeSvc.isDark;
-
-  /** Nombre visible; si no hay, la parte del email antes del @ */
-  displayName = computed(() => {
-    const u = this.user();
-    const dn = (u?.displayName ?? '').trim();
-    if (dn) return dn;
-    const email = String(u?.email ?? '').trim();
-    if (!email) return 'Usuario';
-    return email.split('@')[0] || 'Usuario';
-  });
-
-  initial = computed(() => {
-    const n = this.displayName();
-    return n ? n.trim()[0]?.toUpperCase() : '👤';
-  });
 
   toggleTheme() {
     this.themeSvc.toggle();

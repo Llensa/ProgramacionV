@@ -1,39 +1,111 @@
 <section class="page">
+
+  <!-- ---------- Cabecera con métricas ---------- -->
   <header class="head">
-    <h1>Comunidad</h1>
-    <p class="muted">Actividad y juegos más comentados</p>
+    <div class="headText">
+      <h1>Comunidad</h1>
+      <p class="muted">Lo que está jugando, comentando y puntuando la gente.</p>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <span class="mv">{{ totalComments() }}</span>
+        <span class="ml">Comentarios</span>
+      </div>
+      <div class="metric">
+        <span class="mv">{{ totalRatings() }}</span>
+        <span class="ml">Calificaciones</span>
+      </div>
+      <div class="metric">
+        <span class="mv">{{ activeUsers() }}</span>
+        <span class="ml">Participantes</span>
+      </div>
+    </div>
   </header>
 
+  <!-- ---------- Pestañas (solo móvil) ---------- -->
+  <div class="tabs">
+    <button type="button" class="tab" [class.on]="tab() === 'recientes'" (click)="setTab('recientes')">
+      Actividad reciente
+    </button>
+    <button type="button" class="tab" [class.on]="tab() === 'top'" (click)="setTab('top')">
+      Más comentados
+    </button>
+  </div>
+
   <div class="cols">
-    <section class="card">
-      <h2 class="h2">Top comentados</h2>
 
-      <a class="row"
-         *ngFor="let g of topGames()"
-         [routerLink]="['/juego', g.gameId]">
-        <div class="left">
-          <div class="t">Juego #{{ g.gameId }}</div>
-          <div class="m">💬 {{ g.commentCount || 0 }} · ⭐ {{ g.ratingAvg || 0 }} ({{ g.ratingCount || 0 }})</div>
+    <!-- ---------- Actividad reciente ---------- -->
+    <section class="card" [class.hideMobile]="tab() !== 'recientes'">
+      <h2 class="h2">Actividad reciente</h2>
+
+      <div class="skeletons" *ngIf="loading()">
+        <div class="skelRow" *ngFor="let _ of [1,2,3,4]"></div>
+      </div>
+
+      <article class="comment" *ngFor="let c of recent(); trackBy: trackComment">
+        <app-avatar [photoURL]="c.photoURL" [name]="c.displayName || 'Usuario'" [size]="38"></app-avatar>
+
+        <div class="cBody">
+          <div class="cHead">
+            <b class="cName">{{ c.displayName }}</b>
+            <span class="muted">en</span>
+            <a class="cGame" [routerLink]="['/juego', c.gameId]">{{ c.gameTitle || 'un juego' }}</a>
+            <span class="cTime muted">{{ timeAgo(c.createdAt) }}</span>
+          </div>
+
+          <p class="cText">{{ c.text }}</p>
         </div>
-        <div class="go">›</div>
-      </a>
 
-      <p class="muted" *ngIf="!topGames().length">Todavía no hay actividad.</p>
-    </section>
-
-    <section class="card">
-      <h2 class="h2">Últimos comentarios</h2>
-
-      <article class="c" *ngFor="let c of recent()">
-        <div class="line">
-          <b>{{ c.displayName }}</b>
-          <span class="muted">en</span>
-          <a [routerLink]="['/juego', c.gameId]">{{ c.gameTitle }}</a>
-        </div>
-        <p class="txt">{{ c.text }}</p>
+        <a class="cThumbLink" [routerLink]="['/juego', c.gameId]" *ngIf="c.gameThumb">
+          <img class="cThumb" [src]="c.gameThumb" [alt]="c.gameTitle"
+               loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+        </a>
       </article>
 
-      <p class="muted" *ngIf="!recent().length">Todavía no hay comentarios.</p>
+      <div class="empty" *ngIf="!loading() && !recent().length">
+        <div class="emptyIcon">💬</div>
+        <p>Todavía no hay comentarios.</p>
+        <a class="btn" routerLink="/explorar">Explorar juegos</a>
+      </div>
     </section>
+
+    <!-- ---------- Ranking ---------- -->
+    <section class="card" [class.hideMobile]="tab() !== 'top'">
+      <h2 class="h2">Más comentados</h2>
+
+      <div class="skeletons" *ngIf="loading()">
+        <div class="skelRow" *ngFor="let _ of [1,2,3]"></div>
+      </div>
+
+      <a class="rank"
+         *ngFor="let g of topGames(); let i = index; trackBy: trackGame"
+         [routerLink]="['/juego', g.gameId]">
+
+        <span class="pos" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+          {{ i + 1 }}
+        </span>
+
+        <img class="rThumb" *ngIf="g.gameThumb" [src]="g.gameThumb" [alt]="g.gameTitle"
+             loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+
+        <div class="rInfo">
+          <div class="rTitle">{{ g.gameTitle || ('Juego #' + g.gameId) }}</div>
+          <div class="rMeta">
+            <span class="rStars" [title]="(g.ratingAvg || 0) + ' de 5'">{{ starsFor(g.ratingAvg) }}</span>
+            <span class="muted">{{ g.ratingAvg || 0 }} ({{ g.ratingCount || 0 }})</span>
+            <span class="muted">· 💬 {{ g.commentCount || 0 }}</span>
+          </div>
+        </div>
+
+        <span class="go">›</span>
+      </a>
+
+      <div class="empty" *ngIf="!loading() && !topGames().length">
+        <div class="emptyIcon">🏆</div>
+        <p>Todavía no hay actividad suficiente.</p>
+      </div>
+    </section>
+
   </div>
 </section>

@@ -42,6 +42,7 @@ export interface GameCommentDoc {
   gameThumb?: string;
   uid?: string;
   displayName?: string;
+  photoURL?: string;
   text?: string;
   createdAt?: any;
   updatedAt?: any;
@@ -116,6 +117,7 @@ export class CommunityService {
     gameThumb?: string;
     uid: string;
     displayName: string;
+    photoURL?: string;
     text: string;
   }) {
     const text = (input.text ?? '').trim();
@@ -130,7 +132,9 @@ export class CommunityService {
       gameThumb: input.gameThumb ?? '',
       uid: input.uid,
       displayName: input.displayName,
+      photoURL: input.photoURL ?? '',
       text,
+
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

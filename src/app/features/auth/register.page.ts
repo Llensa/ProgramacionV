@@ -11,7 +11,7 @@ import { ToastStore } from '../../core/services/toast.store';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './register.page.html',
-  styleUrl: './login.page.css', // ✅ reutiliza tu CSS (mismo estilo)
+  styleUrl: './login.page.css', // reutiliza el mismo sistema visual
 })
 export class RegisterPage {
   private fb = inject(FormBuilder);
@@ -20,6 +20,7 @@ export class RegisterPage {
   private router = inject(Router);
 
   loading = signal(false);
+  googleLoading = signal(false);
   error = signal<string | null>(null);
   showPassword = signal(false);
 
@@ -43,16 +44,43 @@ export class RegisterPage {
 
     try {
       await this.auth.register(email, password, name);
-      this.toast.show('success', 'Cuenta creada', 'Ya podés usar Favoritos.');
+      this.toast.show('success', 'Cuenta creada', 'Revisá tu email para verificarla.');
       await this.router.navigateByUrl('/explorar');
     } catch (e: any) {
       const msg =
         e?.code === 'auth/email-already-in-use' ? 'Ese email ya está registrado.'
-          : 'No se pudo crear la cuenta.';
+          : e?.code === 'auth/weak-password' ? 'La contraseña es demasiado débil.'
+            : 'No se pudo crear la cuenta.';
       this.error.set(msg);
       this.toast.show('error', 'Registro falló', msg);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  /** Con Google no hace falta verificar el email: ya viene verificado */
+  async onGoogle() {
+    if (this.googleLoading()) return;
+
+    this.googleLoading.set(true);
+    this.error.set(null);
+
+    try {
+      await this.auth.loginWithGoogle();
+      this.toast.show('success', 'Listo', 'Tu cuenta de Google quedó vinculada.');
+      await this.router.navigateByUrl('/explorar');
+    } catch (e: any) {
+      if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') {
+        return;
+      }
+      const msg =
+        e?.code === 'auth/popup-blocked'
+          ? 'El navegador bloqueó la ventana emergente. Permitila e intentá de nuevo.'
+          : 'No se pudo continuar con Google.';
+      this.error.set(msg);
+      this.toast.show('error', 'Google', msg);
+    } finally {
+      this.googleLoading.set(false);
     }
   }
 }

@@ -23,9 +23,11 @@ export class LoginPage {
   private destroyRef = inject(DestroyRef);
 
   loading = signal(false);
+  googleLoading = signal(false);
   error = signal<string | null>(null);
   returnUrl = signal<string>('/explorar');
   showPassword = signal(false);
+
   form = this.fb.nonNullable.group({
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
     password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(6)]),
@@ -36,17 +38,16 @@ export class LoginPage {
       const ru = qp.get('returnUrl');
       if (ru) this.returnUrl.set(ru);
 
-      const reason = qp.get('reason');
-      if (reason === 'auth') {
+      if (qp.get('reason') === 'auth') {
         this.toast.show('warning', 'Acceso restringido', 'Tenés que iniciar sesión para entrar.');
       }
     });
-
-
   }
+
   togglePassword() {
     this.showPassword.update(v => !v);
   }
+
   async onSubmit() {
     if (this.form.invalid || this.loading()) return;
 
@@ -71,10 +72,39 @@ export class LoginPage {
     }
   }
 
+  /** Inicio de sesión con Google: trae nombre, email y foto de perfil */
+  async onGoogle() {
+    if (this.googleLoading()) return;
+
+    this.googleLoading.set(true);
+    this.error.set(null);
+
+    try {
+      await this.auth.loginWithGoogle();
+      this.toast.show('success', 'Bienvenido', 'Sesión iniciada con Google.');
+      await this.router.navigateByUrl(this.returnUrl());
+    } catch (e: any) {
+      // Cerrar la ventana emergente no es un error que valga la pena mostrar
+      if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') {
+        return;
+      }
+      const msg =
+        e?.code === 'auth/popup-blocked'
+          ? 'El navegador bloqueó la ventana emergente. Permitila e intentá de nuevo.'
+          : e?.code === 'auth/account-exists-with-different-credential'
+            ? 'Ya existe una cuenta con ese email. Ingresá con email y contraseña.'
+            : 'No se pudo iniciar sesión con Google.';
+      this.error.set(msg);
+      this.toast.show('error', 'Google', msg);
+    } finally {
+      this.googleLoading.set(false);
+    }
+  }
+
   async onResetPassword() {
     const email = this.form.get('email')?.value?.trim();
     if (!email) {
-      this.toast.show('info', 'Falta email', 'Escribí tu email y tocá “Olvidé mi contraseña”.');
+      this.toast.show('info', 'Falta email', 'Escribí tu email y tocá "Olvidé mi contraseña".');
       return;
     }
 

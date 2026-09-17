@@ -3,7 +3,7 @@ import { Component, Input, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-
+import { AvatarComponent } from '../../../core/services/avatar/avatar.component';
 import {
   CommunityService,
   GameCommentDoc,
@@ -16,7 +16,7 @@ import { NotificationsStore } from '../../../core/services/notifications.store';
 @Component({
   selector: 'app-game-community',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AvatarComponent],
   templateUrl: './game-community.component.html',
   styleUrl: './game-community.component.css',
 })
@@ -42,7 +42,8 @@ export class GameCommunityComponent {
   me = this.auth.user;
   uid = computed(() => this.me()?.uid ?? null);
   emailVerified = computed(() => !!this.me()?.emailVerified);
-  displayName = computed(() => this.me()?.displayName || this.me()?.email || 'Usuario');
+  displayName = this.auth.displayName;
+  photoURL = this.auth.photoURL;
 
   gamePublic = toSignal<GamePublicDoc | null>(
     toObservable(this.gameIdSig).pipe(
@@ -126,6 +127,7 @@ export class GameCommunityComponent {
         gameThumb: this.gameThumb,
         uid,
         displayName: this.displayName(),
+        photoURL: this.photoURL() ?? '',
         text,
       });
       this.commentText.set('');

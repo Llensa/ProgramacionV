@@ -145,3 +145,47 @@ input.invalid { border-color: var(--danger); }
 
 .toggle-pass:hover { opacity: 1; background: var(--surface-sunken); }
 .toggle-pass:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* --- Botón de Google --- */
+.btn-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: .98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, transform .12s ease;
+}
+
+.btn-google:hover:not(:disabled) {
+  border-color: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+.btn-google:disabled { opacity: .6; cursor: default; transform: none; }
+
+.gIcon { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* --- Separador "o con tu email" --- */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 18px;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}

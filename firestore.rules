@@ -74,7 +74,7 @@ service cloud.firestore {
           && request.resource.data.uid == request.auth.uid
           && onlyKeys([
             'gameId','gameTitle','gameThumb',
-            'uid','displayName','text','createdAt','updatedAt'
+                        'uid','displayName','photoURL','text','createdAt','updatedAt'
           ]);
 
         allow update: if emailVerified()
@@ -85,7 +85,7 @@ service cloud.firestore {
           && request.resource.data.createdAt == resource.data.createdAt
           && onlyKeys([
             'gameId','gameTitle','gameThumb',
-            'uid','displayName','text','createdAt','updatedAt'
+                        'uid','displayName','photoURL','text','createdAt','updatedAt'
           ]);
 
         allow delete: if emailVerified() && isOwner(resource.data.uid);
