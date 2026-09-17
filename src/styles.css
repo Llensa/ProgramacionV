@@ -200,3 +200,23 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
   }
 }
+/* Los menús desplegables de <select> los dibuja el sistema operativo,
+   no el CSS de la página. color-scheme le indica qué paleta usar para
+   que el popup acompañe al tema claro/oscuro. */
+select,
+option,
+optgroup {
+  color-scheme: inherit;
+}
+
+:root[data-theme='dark'] select option,
+:root[data-theme='dark'] select optgroup {
+  background-color: #141421;
+  color: #E6E6F0;
+}
+
+:root[data-theme='light'] select option,
+:root[data-theme='light'] select optgroup {
+  background-color: #ffffff;
+  color: #10131a;
+}

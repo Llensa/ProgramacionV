@@ -34,11 +34,16 @@ export class CuentaPage {
 
   me$ = this.auth.user$;
 
-  me = signal<any | null>(null);
+  // Una sola fuente de verdad: las señales del servicio. Mantener una copia
+  // local hacía que el navbar y esta página mostraran estados distintos.
+  me = this.auth.user;
   uid = computed(() => this.me()?.uid ?? null);
   email = computed(() => this.me()?.email ?? null);
   emailVerified = computed(() => !!this.me()?.emailVerified);
-  photoURL = computed(() => this.me()?.photoURL ?? null);
+  photoURL = this.auth.photoURL;
+
+  /** Nombre YA guardado: la portada no debe cambiar mientras se escribe */
+  savedName = this.auth.displayName;
 
   /** 'google' o 'password': cambia qué acciones tienen sentido mostrar */
   provider = this.auth.provider;
@@ -79,10 +84,22 @@ export class CuentaPage {
     frequency: this.fb.nonNullable.control<NotifyFreq>('instant'),
   });
 
-  constructor() {
-    this.me$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async u => {
-      this.me.set(u as any);
+  /**
+   * Con detección de cambios sin Zone.js, el template solo reacciona a
+   * señales. El valor de un FormControl no lo es. Además `valueChanges` no
+   * emite en los patchValue programáticos, así que mantenemos la señal a
+   * mano: se actualiza al tipear y también al cargar el perfil.
+   */
+  private nameSig = signal('');
+  displayNameValue = this.nameSig.asReadonly();
+  nameLength = computed(() => this.nameSig().length);
 
+  constructor() {
+    this.form.controls.displayName.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(v => this.nameSig.set(v ?? ''));
+
+    this.me$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async u => {
       const uid = u?.uid;
       if (!uid) return;
 
@@ -90,9 +107,15 @@ export class CuentaPage {
 
       try {
         const prefs = await this.profile.loadPrefs(uid);
-        queueMicrotask(() => this.form.patchValue({ displayName: dn, ...prefs }));
+        queueMicrotask(() => {
+          this.form.patchValue({ displayName: dn, ...prefs });
+          this.nameSig.set(dn);
+        });
       } catch {
-        queueMicrotask(() => this.form.patchValue({ displayName: dn }));
+        queueMicrotask(() => {
+          this.form.patchValue({ displayName: dn });
+          this.nameSig.set(dn);
+        });
       }
     });
   }
@@ -103,7 +126,6 @@ export class CuentaPage {
     this.busy.set(true);
     try {
       await this.auth.refreshUser();
-      this.me.set(this.auth.currentUser as any);
       this.toast.show('success', 'Listo', 'Datos actualizados.');
     } catch {
       this.toast.show('error', 'Error', 'No se pudieron actualizar los datos.');
@@ -143,6 +165,14 @@ export class CuentaPage {
     const uid = this.uid();
     if (!uid) return;
 
+    // El (blur) se dispara aunque el campo esté vacío o sea muy corto.
+    // Consultar con un nombre inválido генera una ruta `usernames/` sin
+    // documento, que Firestore rechaza con permission-denied.
+    if (this.form.controls.displayName.invalid) {
+      this.nameStatus.set(null);
+      return;
+    }
+
     const name = this.form.getRawValue().displayName;
 
     this.busy.set(true);
@@ -153,6 +183,8 @@ export class CuentaPage {
         ok: r.ok,
         text: r.ok ? 'Disponible' : r.reason || 'No disponible',
       });
+    } catch {
+      this.nameStatus.set({ ok: false, text: 'No se pudo verificar el nombre.' });
     } finally {
       this.busy.set(false);
     }
@@ -183,6 +215,9 @@ export class CuentaPage {
       };
 
       await this.profile.savePrefs(uid, prefs);
+
+      // Propaga el nombre nuevo al navbar y al resto de la app
+      await this.auth.syncProfile();
 
       this.toast.show('success', 'Guardado', 'Perfil y preferencias actualizadas.');
       this.nameStatus.set({ ok: true, text: 'Guardado' });

@@ -1,6 +1,5 @@
-import { Injectable, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-
+import { Injectable, computed, inject, signal } from '@angular/core';
 import {
   Auth,
   User,
@@ -30,6 +29,12 @@ export class AuthService {
 
   /** Señal tipada del usuario actual */
   user = toSignal(this.user$, { initialValue: null as User | null });
+  /**
+   * updateProfile() no hace que authState() vuelva a emitir, así que el
+   * nombre y la foto quedarían desactualizados en toda la app hasta
+   * recargar. Guardamos el valor fresco acá y lo priorizamos al leer.
+   */
+  private profileOverride = signal<{ displayName: string | null; photoURL: string | null } | null>(null);
 
   /** Usuario actual de forma sincrónica (null si no hay sesión) */
   get currentUser() {
@@ -40,12 +45,12 @@ export class AuthService {
   isVerified = computed(() => !!this.user()?.emailVerified);
 
   /** Foto de perfil (la de Google si inició sesión con Google) */
-  photoURL = computed(() => this.user()?.photoURL ?? null);
+  photoURL = computed(() => this.profileOverride()?.photoURL ?? this.user()?.photoURL ?? null);
 
   /** Nombre visible con respaldo en la parte local del email */
   displayName = computed(() => {
     const u = this.user();
-    const dn = (u?.displayName ?? '').trim();
+    const dn = (this.profileOverride()?.displayName ?? u?.displayName ?? '').trim();
     if (dn) return dn;
     const email = String(u?.email ?? '').trim();
     return email ? email.split('@')[0] : 'Usuario';
@@ -98,6 +103,7 @@ export class AuthService {
 
   // ---------- Comunes ----------
   async logout() {
+    this.profileOverride.set(null);
     await signOut(this.auth);
   }
 
@@ -122,4 +128,12 @@ export class AuthService {
     await reload(u);
     await u.getIdToken(true);
   }
+  /** Vuelve a leer el perfil desde Firebase tras editarlo (nombre, foto) */
+  async syncProfile() {
+    const u = this.auth.currentUser;
+    if (!u) return;
+    await reload(u);
+    this.profileOverride.set({ displayName: u.displayName, photoURL: u.photoURL });
+  }
 }
+

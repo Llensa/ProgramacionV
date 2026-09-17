@@ -253,21 +253,34 @@
   margin-bottom: 10px;
 }
 
-.langLabel { font-size: .85rem; color: var(--muted); }
-
+.langLabel {
+  font-size: .85rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
 .langSelect {
   background: var(--surface-sunken);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 7px 10px;
+  /* Mismo alto y tipografía que .btn.translate, para que queden alineados */
+  padding: 8px 12px;
   font-size: .9rem;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.2;
+  min-width: 150px;
   cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.langSelect:hover:not(:disabled) {
+  border-color: var(--accent-soft);
+  background: var(--accent-ghost);
 }
 
 .langSelect:focus { outline: none; border-color: var(--accent); }
 .langSelect:disabled { opacity: .55; cursor: default; }
-
 .btn.translate {
   background: var(--accent-ghost);
   border: 1px solid var(--accent-soft);

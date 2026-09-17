@@ -32,6 +32,11 @@ export class UserProfileService {
       .replace(/[^\p{L}\p{N}_ .-]/gu, '');
   }
 
+  /** Clave del documento en `usernames`: nombre normalizado sin espacios */
+  private nameKey(displayName: string) {
+    return this.normName(displayName).replace(/\s/g, '_');
+  }
+
   async loadPrefs(uid: string): Promise<UserPrefs> {
     const ref = doc(this.fs, `users/${uid}`);
     const snap = await runInInjectionContext(this.injector, () => getDoc(ref));
@@ -63,7 +68,13 @@ export class UserProfileService {
     if (normalized.length < 2) return { ok: false, reason: 'Muy corto (mín 2).' };
     if (normalized.length > 20) return { ok: false, reason: 'Muy largo (máx 20).' };
 
-    const key = normalized.replace(/\s/g, '_');
+    const key = this.nameKey(displayName);
+
+    // Si la clave queda vacía, `usernames/${key}` apuntaría a la colección
+    // en vez de a un documento: Firestore lo trata como un listado y lo
+    // deniega con permission-denied.
+    if (!key) return { ok: false, reason: 'Nombre inválido.' };
+
     const ref = doc(this.fs, `usernames/${key}`);
     const snap = await runInInjectionContext(this.injector, () => getDoc(ref));
 
@@ -79,7 +90,11 @@ export class UserProfileService {
     if (!u || u.uid !== uid) throw new Error('No autenticado.');
 
     const normalized = this.normName(displayName);
-    const key = normalized.replace(/\s/g, '_');
+    if (normalized.length < 2) throw new Error('El nombre es muy corto (mín 2).');
+    if (normalized.length > 20) throw new Error('El nombre es muy largo (máx 20).');
+
+    const key = this.nameKey(displayName);
+    if (!key) throw new Error('Nombre inválido.');
 
     const usernameRef = doc(this.fs, `usernames/${key}`);
     const userRef = doc(this.fs, `users/${uid}`);

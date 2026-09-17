@@ -245,3 +245,16 @@
   .heroActions .btn { flex: 1 1 auto; }
   .row .btn { width: 100%; }
 }
+/* Oculta el botón nativo de "mostrar contraseña" del navegador:
+   ya tenemos el nuestro y aparecían los dos juntos. */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}

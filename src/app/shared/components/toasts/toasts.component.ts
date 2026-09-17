@@ -8,16 +8,13 @@ import { ToastStore } from '../../../core/services/toast.store';
   imports: [CommonModule],
   template: `
     <div class="stack" aria-live="polite" aria-atomic="true">
-      <div
-        class="toast"
-        *ngFor="let t of items()"
-        [attr.data-kind]="t.kind"
-        (click)="remove(t.id)"
-        role="status"
-      >
-        <div class="title">{{ t.title }}</div>
-        <div class="msg" *ngIf="t.message">{{ t.message }}</div>
-        <div class="hint">Click para cerrar</div>
+      <div class="toast" *ngFor="let t of items()" [attr.data-kind]="t.kind" role="status">
+        <div class="body" (click)="remove(t.id)">
+          <div class="title">{{ t.title }}</div>
+          <div class="msg" *ngIf="t.message">{{ t.message }}</div>
+        </div>
+
+        <button class="close" type="button" (click)="remove(t.id)" aria-label="Cerrar">✕</button>
       </div>
     </div>
   `,
@@ -35,19 +32,35 @@ import { ToastStore } from '../../../core/services/toast.store';
 
     .toast{
       pointer-events: auto;
-      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
       border-radius: 14px;
       padding: 12px;
       border: 1px solid var(--border-strong);
       background: var(--surface);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
       color: var(--text);
-      transition: transform .12s ease, border-color .12s ease;
       animation: toastIn .22s ease-out;
     }
 
-    .toast:hover{ transform: translateY(-1px); border-color: var(--accent-soft); }
+    .body{ flex: 1; min-width: 0; cursor: pointer; }
+
+    .close{
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: var(--surface-sunken);
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+      font-size: .8rem;
+      transition: color .15s ease, border-color .15s ease;
+    }
+
+    .close:hover{ color: var(--danger); border-color: var(--danger); }
 
     @keyframes toastIn{
       from { opacity: 0; transform: translateX(16px); }
@@ -56,7 +69,6 @@ import { ToastStore } from '../../../core/services/toast.store';
 
     .title{ font-weight: 800; margin-bottom: 2px; }
     .msg{ color: var(--text-2); font-size: .92rem; line-height: 1.3; }
-    .hint{ margin-top: 8px; font-size: .78rem; color: var(--muted); }
 
     .toast[data-kind="success"]{ border-left: 3px solid var(--success); }
     .toast[data-kind="warning"]{ border-left: 3px solid var(--warning); }

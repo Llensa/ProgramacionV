@@ -9,12 +9,12 @@
         <app-avatar
           class="heroAvatar"
           [photoURL]="photoURL()"
-          [name]="form.get('displayName')?.value || email() || 'U'"
+          [name]="savedName() || email() || 'U'"
           [size]="88">
         </app-avatar>
 
         <div class="heroInfo">
-          <h1 class="heroName">{{ form.get('displayName')?.value || 'Tu cuenta' }}</h1>
+          <h1 class="heroName">{{ savedName() || 'Tu cuenta' }}</h1>
           <p class="heroEmail">{{ email() }}</p>
 
           <div class="chips">
@@ -97,7 +97,7 @@
             <div class="fieldFoot">
               <span class="muted small">Entre 2 y 20 caracteres. Debe ser único.</span>
               <span class="counter muted small">
-                {{ (form.get('displayName')?.value || '').length }} / 20
+                {{ nameLength() }} / 20
               </span>
             </div>
 

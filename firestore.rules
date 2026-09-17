@@ -74,7 +74,7 @@ service cloud.firestore {
           && request.resource.data.uid == request.auth.uid
           && onlyKeys([
             'gameId','gameTitle','gameThumb',
-                        'uid','displayName','photoURL','text','createdAt','updatedAt'
+            'uid','displayName','photoURL','text','createdAt','updatedAt'
           ]);
 
         allow update: if emailVerified()
@@ -85,11 +85,23 @@ service cloud.firestore {
           && request.resource.data.createdAt == resource.data.createdAt
           && onlyKeys([
             'gameId','gameTitle','gameThumb',
-                        'uid','displayName','photoURL','text','createdAt','updatedAt'
+            'uid','displayName','photoURL','text','createdAt','updatedAt'
           ]);
 
         allow delete: if emailVerified() && isOwner(resource.data.uid);
       }
+    }
+
+    // =======================
+    // COLLECTION GROUP: comments
+    // =======================
+    // Las reglas anidadas NO se aplican a las consultas collectionGroup().
+    // La pagina Comunidad (comentarios recientes) y la pagina Cuenta (mis
+    // comentarios) consultan el grupo completo, asi que necesitan esta regla
+    // explicita. Solo habilita lectura: las escrituras siguen gobernadas por
+    // la regla anidada de games_public/{id}/comments.
+    match /{path=**}/comments/{commentId} {
+      allow read: if true;
     }
 
     // =======================
