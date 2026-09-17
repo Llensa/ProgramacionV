@@ -3,7 +3,7 @@ import { Component, Input, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { AvatarComponent } from '../../../core/services/avatar/avatar.component';
+import { AvatarComponent } from '../avatar/avatar.component';
 import {
   CommunityService,
   GameCommentDoc,
