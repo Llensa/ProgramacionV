@@ -21,12 +21,17 @@ export class RegisterPage {
 
   loading = signal(false);
   error = signal<string | null>(null);
+  showPassword = signal(false);
 
   form = this.fb.nonNullable.group({
     name: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
     password: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(6)]),
   });
+
+  togglePassword() {
+    this.showPassword.update(v => !v);
+  }
 
   async onSubmit() {
     if (this.form.invalid || this.loading()) return;

@@ -9,7 +9,9 @@
     (changed)="onFiltersChanged($event)">
   </app-filters-bar>
 
-  <p class="muted" *ngIf="loading() && !games().length">Cargando juegos...</p>
+  <div class="grid" *ngIf="loading() && !games().length">
+    <div class="skeleton-card" *ngFor="let _ of [1,2,3,4,5,6,7,8]"></div>
+  </div>
   <p class="error" *ngIf="error()">{{ error() }}</p>
 
   <div class="empty" *ngIf="!loading() && !error() && !games().length">

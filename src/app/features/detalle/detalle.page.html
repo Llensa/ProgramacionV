@@ -36,13 +36,20 @@
       </button>
 
       <div class="frame">
-        <img
-          class="shot"
-          [src]="mediaUrls()[activeIndex()]"
-          [alt]="g.title"
-          loading="eager"
-          (error)="onImgError($event)"
-        />
+        <div class="track" [style.transform]="'translateX(' + (-activeIndex() * 100) + '%)'">
+          <div class="slide" *ngFor="let url of mediaUrls(); let i = index">
+            <img
+              class="shot"
+              [src]="url"
+              [alt]="g.title"
+              [attr.loading]="i <= 1 ? 'eager' : 'lazy'"
+              [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
+              decoding="async"
+              draggable="false"
+              (error)="onImgError($event)"
+            />
+          </div>
+        </div>
       </div>
 
       <button

@@ -12,8 +12,16 @@
 
       <div class="field">
         <label>Contraseña</label>
-        <input type="password" formControlName="password" placeholder="Contraseña"
-               [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+        <div class="input-wrap">
+          <input [type]="showPassword() ? 'text' : 'password'"
+                 formControlName="password" placeholder="Contraseña"
+                 [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+          <button type="button" class="toggle-pass" (click)="togglePassword()"
+                  [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  [attr.aria-pressed]="showPassword()">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
       </div>
 
       @if (error()) {

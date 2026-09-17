@@ -25,10 +25,18 @@
 
       <div class="field">
         <label for="pass">Contraseña</label>
-        <input id="pass" type="password" formControlName="password" placeholder="******"
-               [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+        <div class="input-wrap">
+          <input id="pass" [type]="showPassword() ? 'text' : 'password'"
+                 formControlName="password" placeholder="******"
+                 [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+          <button type="button" class="toggle-pass" (click)="togglePassword()"
+                  [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  [attr.aria-pressed]="showPassword()">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
         @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-          <span class="hint error">Mínimo 6 caracteres.</span>
+        <span class="hint error">Mínimo 6 caracteres.</span>
         }
       </div>
 

@@ -1,0 +1,43 @@
+<article
+  class="card"
+  role="link"
+  tabindex="0"
+  [attr.aria-label]="'Ver detalle de ' + game?.title"
+  (click)="goToDetail()"
+  (keydown)="onKeydown($event)"
+>
+  <div class="card-image" [class.loaded]="imgLoaded()">
+    <img
+      [src]="imgSrc()"
+      [alt]="game?.title"
+      [class.is-loaded]="imgLoaded()"
+      [attr.loading]="eager ? 'eager' : 'lazy'"
+      [attr.fetchpriority]="eager ? 'high' : 'auto'"
+      decoding="async"
+      referrerpolicy="no-referrer"
+      (load)="onImgLoad()"
+      (error)="onImgError()"
+    />
+
+    <span class="badge" *ngIf="game?.status">{{ game.status }}</span>
+
+    <button
+      class="fav-btn"
+      type="button"
+      (click)="$event.stopPropagation(); toggleFav()"
+      [class.active]="isFav()"
+      [attr.aria-pressed]="isFav()"
+      [attr.aria-label]="isFav() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+    >
+      {{ isFav() ? '★' : '☆' }}
+    </button>
+  </div>
+
+  <div class="card-content">
+    <h3 class="title">{{ game?.title }}</h3>
+    <p class="meta">{{ game?.genre }} · {{ game?.platform }}</p>
+    <p class="desc" *ngIf="game?.short_description">
+      {{ game.short_description | truncate: 100 }}
+    </p>
+  </div>
+</article>

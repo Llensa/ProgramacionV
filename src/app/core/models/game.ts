@@ -19,3 +19,17 @@ export interface Game {
 
 export type PlatformFilter = 'pc' | 'browser' | 'all';
 export type SortBy = 'relevance' | 'release-date' | 'popularity' | 'alphabetical';
+/**
+ * Subconjunto mínimo de datos que necesita una tarjeta de juego.
+ * Tanto `Game` como `GameListItem` son compatibles con esta forma, así que
+ * el componente de tarjeta sirve para ambos sin usar `any`.
+ */
+export interface GameSummary {
+  id: number;
+  title: string;
+  thumbnail?: string;
+  short_description?: string;
+  genre?: string;
+  platform?: string;
+  status?: string;
+}
