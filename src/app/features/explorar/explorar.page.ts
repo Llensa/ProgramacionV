@@ -62,6 +62,10 @@ export class ExplorarPage implements OnInit {
 
   ngOnInit(): void {
     const fromLs: Filters = this.readFromLS();
+    // El valor guardado solo se usa al entrar a la página. Si se aplicara en
+    // cada emisión, al borrar el buscador la URL quedaría vacía y volveríamos
+    // a restaurar el término anterior.
+    let firstEmission = true;
 
     this.route.queryParamMap
       .pipe(
@@ -72,14 +76,12 @@ export class ExplorarPage implements OnInit {
           sortBy: (qp.get('sort-by') || undefined) as any,
         })),
         map(qp => {
-          // Si la URL no trae nada, arrancamos con lo último guardado
           const empty = !qp.q && !qp.platform && !qp.category && !qp.sortBy;
-          return (empty ? fromLs : qp) as Filters;
+          const result = firstEmission && empty ? fromLs : qp;
+          firstEmission = false;
+          return result as Filters;
         }),
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        // El DestroyRef explícito es obligatorio fuera del constructor:
-        // takeUntilDestroyed() sin argumento solo puede usarse en un
-        // contexto de inyección (constructor o inicializador de campo).
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(f => {

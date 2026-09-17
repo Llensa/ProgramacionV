@@ -1,12 +1,9 @@
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 
-import { GamesApiService } from '../../core/api/games-api';
 import { FavoritesService } from '../../core/services/favorites.service';
-import { Game } from '../../core/models/game';
+import { ToastStore } from '../../core/services/toast.store';
+import { GameSummary } from '../../core/models/game';
 import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
 
 @Component({
@@ -17,64 +14,40 @@ import { GameCardComponent } from '../../shared/components/game-card/game-card.c
   styleUrl: './favoritos.page.css',
 })
 export class FavoritosPage {
-  private api = inject(GamesApiService);
   private favs = inject(FavoritesService);
-  private destroyRef = inject(DestroyRef);
+  private toast = inject(ToastStore);
 
-  loading = signal(false);
+  busy = signal(false);
   error = signal<string | null>(null);
-  games = signal<Game[]>([]);
 
-  // ✅ señal reactiva con los ids
-  ids = computed(() => this.favs.ids());
-  total = computed(() => this.ids().length);
+  total = this.favs.total;
 
-  constructor() {
-    // ✅ reactivo real: cada vez que cambia ids(), recarga lista
-    effect(() => {
-      const ids = this.ids();
-      this.loadFavorites(ids);
-    });
-  }
+  /**
+   * Los favoritos ya traen título y miniatura desde Firestore,
+   * así que la vista se arma sin pedirle nada a la API externa.
+   */
+  games = computed<GameSummary[]>(() =>
+    this.favs.items().map(f => ({
+      id: Number(f.gameId),
+      title: f.title,
+      thumbnail: f.thumbnail,
+      genre: f.genre,
+      platform: f.platform,
+    }))
+  );
 
-  clearAll() {
-    this.favs.clear();
-  }
+  async clearAll() {
+    if (!this.total()) return;
 
-  private loadFavorites(ids: number[]) {
+    this.busy.set(true);
     this.error.set(null);
-
-    if (!ids.length) {
-      this.games.set([]);
-      return;
+    try {
+      await this.favs.clear();
+      this.toast.show('success', 'Listo', 'Se vaciaron tus favoritos.');
+    } catch {
+      this.error.set('No se pudieron eliminar los favoritos.');
+    } finally {
+      this.busy.set(false);
     }
-
-    this.loading.set(true);
-
-    forkJoin(
-      ids.map((id) =>
-        this.api.getGameById(id).pipe(
-          catchError(() => of(null))
-        )
-      )
-    )
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map((arr) => (arr || []).filter(Boolean) as Game[])
-      )
-      .subscribe({
-        next: (list) => {
-          // si querés mantener el mismo orden que los ids:
-          const mapById = new Map(list.map((g: any) => [Number(g.id), g]));
-          const ordered = ids.map((id) => mapById.get(id)).filter(Boolean) as Game[];
-
-          this.games.set(ordered);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set('No se pudieron cargar tus favoritos.');
-          this.loading.set(false);
-        },
-      });
   }
 }

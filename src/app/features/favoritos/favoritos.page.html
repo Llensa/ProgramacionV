@@ -6,15 +6,15 @@
       <p class="sub muted" *ngIf="total() === 0">Todavía no agregaste favoritos.</p>
     </div>
 
-    <button class="btn danger" type="button" (click)="clearAll()" [disabled]="total() === 0">
-      Limpiar
+    <button class="btn danger" type="button" (click)="clearAll()"
+            [disabled]="total() === 0 || busy()">
+      {{ busy() ? 'Eliminando...' : 'Limpiar' }}
     </button>
   </header>
 
-  <p class="state muted" *ngIf="loading()">Cargando favoritos...</p>
   <p class="state error" *ngIf="error()">{{ error() }}</p>
 
-  <div class="empty" *ngIf="!loading() && total() === 0">
+  <div class="empty" *ngIf="total() === 0">
     <p>Tip: tocá la estrella ⭐ desde Explorar o Detalle.</p>
   </div>
 

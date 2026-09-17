@@ -8,7 +8,7 @@ import {
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { GameCommunityComponent } from '../../shared/components/game-community/game-community.component';
@@ -27,7 +27,7 @@ export class DetallePage implements OnInit {
   private route = inject(ActivatedRoute);
   private favs = inject(FavoritesService);
   private destroyRef = inject(DestroyRef);
-
+  private router = inject(Router);
   private idSig = signal<number | null>(null);
 
   loading = signal(false);
@@ -74,10 +74,17 @@ export class DetallePage implements OnInit {
 
   }
 
-  toggleFav() {
-    const id = this.idSig();
-    if (id === null) return;
-    this.favs.toggle(id);
+  async toggleFav() {
+    const g = this.game();
+    if (!g) return;
+
+    try {
+      await this.favs.toggle(g);
+    } catch {
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: `/juego/${g.id}`, reason: 'auth' },
+      });
+    }
   }
 
   prev() {

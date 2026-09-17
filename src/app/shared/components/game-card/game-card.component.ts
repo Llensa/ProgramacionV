@@ -52,15 +52,20 @@ export class GameCardComponent {
     this.imgLoaded.set(true);
   }
 
-  toggleFav() {
-    const was = this.isFav();
-    this.favs.toggle(this.game.id);
-
-    this.toast.show(
-      was ? 'warning' : 'success',
-      was ? 'Favorito quitado' : 'Agregado a favoritos',
-      this.game?.title
-    );
+  async toggleFav() {
+    try {
+      const added = await this.favs.toggle(this.game);
+      this.toast.show(
+        added ? 'success' : 'warning',
+        added ? 'Agregado a favoritos' : 'Favorito quitado',
+        this.game?.title
+      );
+    } catch {
+      this.toast.show('info', 'Iniciá sesión', 'Necesitás una cuenta para guardar favoritos.');
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: this.router.url, reason: 'auth' },
+      });
+    }
   }
 
   goToDetail() {

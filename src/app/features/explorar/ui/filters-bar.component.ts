@@ -23,7 +23,15 @@ export class FiltersBarComponent {
   private fb = inject(FormBuilder);
 
   @Input() set value(v: Filters | undefined) {
-    this.form.patchValue(v ?? {}, { emitEvent: false });
+    this.form.patchValue(
+      {
+        q: v?.q ?? '',
+        platform: v?.platform ?? '',
+        category: v?.category ?? '',
+        sortBy: v?.sortBy ?? '',
+      },
+      { emitEvent: false }
+    );
   }
   @Output() readonly changed = new EventEmitter<Filters>();
 
