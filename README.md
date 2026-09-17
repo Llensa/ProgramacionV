@@ -1,59 +1,83 @@
-# P5Freetogame
+# YenzaPlayG
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
+SPA desarrollada en **Angular 20** para explorar el catálogo de juegos
+free-to-play de [FreeToGame](https://www.freetogame.com), con autenticación,
+persistencia en la nube y comunidad.
 
-## Development server
+**Aplicación en producción:** https://yenzaplayg.web.app
 
-To start a local development server, run:
+Proyecto final de **Programación V** — Licenciatura en Sistemas de Información.
 
-```bash
-ng serve
+---
+
+## Funcionalidades
+
+- **Explorar**: catálogo con scroll infinito, buscador por texto con debounce y
+  filtros por plataforma, categoría y orden. El estado de los filtros vive en la
+  URL, así que cualquier búsqueda se puede compartir como enlace.
+- **Detalle**: galería de capturas con slider, requisitos mínimos y traducción
+  automática de la descripción a cinco idiomas.
+- **Autenticación**: registro, inicio de sesión, verificación por email y
+  recuperación de contraseña con Firebase Authentication.
+- **Rutas protegidas**: guard funcional asíncrono que espera a que Firebase
+  restaure la sesión antes de decidir.
+- **Favoritos**: CRUD completo sobre Cloud Firestore, sincronizado en tiempo real
+  entre pestañas y dispositivos.
+- **Comunidad**: comentarios y calificaciones por juego, con promedios calculados
+  mediante transacciones atómicas.
+- **Cuenta**: nombre visible único y preferencias de notificaciones.
+- **Tema claro / oscuro** con detección de la preferencia del sistema.
+
+## Arquitectura
+
+```
+src/app/
+├── core/          # servicios, guards, interceptores, modelos (singleton)
+│   ├── api/       # consumo de la API externa
+│   ├── guards/    # protección de rutas
+│   ├── models/    # interfaces de dominio
+│   └── services/  # auth, favoritos, comunidad, traducción, tema
+├── features/      # una carpeta por ruta, todas con lazy loading
+└── shared/        # componentes, pipes y directivas reutilizables
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Decisiones principales:
 
-## Code scaffolding
+- **Componentes standalone** y carga diferida por ruta (`loadComponent`).
+- **Zoneless change detection** con *signals* en lugar de Zone.js.
+- **Los componentes no conocen Firebase**: acceden solo a través de servicios,
+  de modo que la capa de persistencia queda aislada.
+- **Proxy en Cloudflare Workers** para consumir FreeToGame, que no expone
+  cabeceras CORS. El worker además pagina y cachea las respuestas.
+- **Reglas de seguridad en Firestore** que validan campo por campo con
+  `hasOnly()`, en vez de confiar solo en la validación del cliente.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Stack
 
-```bash
-ng generate component component-name
-```
+Angular 20 · TypeScript 5.9 · RxJS 7.8 · Firebase (Auth, Firestore, Hosting) ·
+AngularFire 20 · Cloudflare Workers
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Puesta en marcha
 
 ```bash
-ng build
+npm install
+npm start           # servidor de desarrollo en http://localhost:4200
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Las credenciales de Firebase se configuran en `src/environments/environment.ts`.
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Despliegue
 
 ```bash
-ng test
+npm run deploy      # ng build && firebase deploy --only hosting
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Reglas de Firestore:
 
 ```bash
-ng e2e
+firebase deploy --only firestore:rules
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Autor
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Juan Pablo Llensa — Programación V, 2026.

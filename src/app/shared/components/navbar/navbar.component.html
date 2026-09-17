@@ -1,15 +1,30 @@
 <header class="app-header">
-  <div class="brand" routerLink="/explorar">
+  <div class="brand" routerLink="/explorar" role="link" tabindex="0">
     🎮 YenzaPlayG
   </div>
 
   <nav class="nav">
     <a routerLink="/explorar" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Explorar</a>
     <a routerLink="/favoritos" routerLinkActive="active">Favoritos</a>
-    <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
+
+    <a routerLink="/notificaciones" routerLinkActive="active" class="withBadge">
+      Notificaciones
+      <span class="count" *ngIf="unread() > 0">{{ unread() }}</span>
+    </a>
+
     <a routerLink="/comunidad" routerLinkActive="active">Comunidad</a>
     <a routerLink="/cuenta" routerLinkActive="active" *ngIf="isLogged()">Cuenta</a>
   </nav>
+
+  <button
+    class="themeBtn"
+    type="button"
+    (click)="toggleTheme()"
+    [attr.aria-label]="isDark() ? 'Activar modo día' : 'Activar modo noche'"
+    [title]="isDark() ? 'Modo día' : 'Modo noche'"
+  >
+    {{ isDark() ? '☀️' : '🌙' }}
+  </button>
 
   <nav class="auth" *ngIf="!isLogged(); else logged">
     <a routerLink="/auth/login" routerLinkActive="active">Ingresar</a>

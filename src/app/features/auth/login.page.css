@@ -2,42 +2,40 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 140px); /* Ajuste para header/footer */
+  min-height: calc(100vh - 220px);
   padding: 20px;
 }
 
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background: #141421;
-  border: 1px solid #222334;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow);
 }
 
 h1 {
   margin: 0;
-  color: #fff;
+  color: var(--text);
   font-size: 1.8rem;
   text-align: center;
 }
 
 .subtitle {
   text-align: center;
-  color: #a3a7b3;
+  color: var(--muted);
   margin-top: 8px;
   margin-bottom: 24px;
 }
 
-.field {
-  margin-bottom: 16px;
-}
+.field { margin-bottom: 16px; }
 
 label {
   display: block;
-  font-size: 0.9rem;
-  color: #cfcfe8;
+  font-size: .9rem;
+  color: var(--text-2);
   margin-bottom: 6px;
 }
 
@@ -45,25 +43,19 @@ input {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #2a2a3a;
-  background: #0b0b0f;
-  color: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--text);
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: border-color .2s;
 }
 
-input:focus {
-  outline: none;
-  border-color: #a470ff;
-}
-
-input.invalid {
-  border-color: #ff5575;
-}
+input:focus { outline: none; border-color: var(--accent); }
+input.invalid { border-color: var(--danger); }
 
 .hint.error {
-  color: #ff5575;
-  font-size: 0.8rem;
+  color: var(--danger);
+  font-size: .8rem;
   margin-top: 4px;
   display: block;
 }
@@ -71,62 +63,60 @@ input.invalid {
 .btn-primary {
   width: 100%;
   padding: 14px;
-  background: #a470ff;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   margin-top: 12px;
-  transition: background 0.2s;
+  transition: background .2s;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: #8e54e9;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btn-primary:hover:not(:disabled) { background: var(--accent-strong); }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
 
 .alert.error {
-  background: rgba(255, 85, 117, 0.1);
-  color: #ff5575;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
   padding: 10px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: .9rem;
   text-align: center;
   margin-bottom: 16px;
-  border: 1px solid rgba(255, 85, 117, 0.2);
+  border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 .footer {
   margin-top: 20px;
   text-align: center;
-  font-size: 0.9rem;
-  color: #a3a7b3;
+  font-size: .9rem;
+  color: var(--muted);
 }
 
 .footer a {
-  color: #a470ff;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 600;
   margin-left: 5px;
 }
+
 .footer a:hover { text-decoration: underline; }
-.link{
+
+.link {
   margin-top: 12px;
   width: 100%;
   background: transparent;
   border: 0;
-  color: #a470ff;
+  color: var(--accent);
   font-weight: 700;
   cursor: pointer;
   text-align: center;
 }
-.link:hover{ text-decoration: underline; }
+
+.link:hover { text-decoration: underline; }
+
 /* --- Toggle de visibilidad de contraseña --- */
 .input-wrap {
   position: relative;
@@ -134,9 +124,7 @@ input.invalid {
   align-items: center;
 }
 
-.input-wrap input {
-  padding-right: 48px; /* espacio para el botón */
-}
+.input-wrap input { padding-right: 48px; }
 
 .toggle-pass {
   position: absolute;
@@ -155,5 +143,5 @@ input.invalid {
   transition: opacity .15s ease, background .15s ease;
 }
 
-.toggle-pass:hover { opacity: 1; background: rgba(255,255,255,.06); }
-.toggle-pass:focus-visible { outline: 2px solid #a470ff; outline-offset: 2px; }
+.toggle-pass:hover { opacity: 1; background: var(--surface-sunken); }
+.toggle-pass:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

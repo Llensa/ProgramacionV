@@ -32,29 +32,36 @@ import { ToastStore } from '../../../core/services/toast.store';
       width: min(360px, calc(100vw - 28px));
       pointer-events: none;
     }
+
     .toast{
       pointer-events: auto;
       cursor: pointer;
       border-radius: 14px;
-      padding: 12px 12px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(12, 14, 20, .92);
-      box-shadow: 0 14px 40px rgba(0,0,0,.45);
+      padding: 12px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
-      color: #e6e6f0;
-      transform: translateY(0);
+      color: var(--text);
       transition: transform .12s ease, border-color .12s ease;
+      animation: toastIn .22s ease-out;
     }
-    .toast:hover{ transform: translateY(-1px); border-color: rgba(164,112,255,.35); }
+
+    .toast:hover{ transform: translateY(-1px); border-color: var(--accent-soft); }
+
+    @keyframes toastIn{
+      from { opacity: 0; transform: translateX(16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
     .title{ font-weight: 800; margin-bottom: 2px; }
-    .msg{ color: rgba(230,230,240,.85); font-size: .92rem; line-height: 1.3; }
-    .hint{ margin-top: 8px; font-size: .78rem; color: rgba(160,165,180,.75); }
+    .msg{ color: var(--text-2); font-size: .92rem; line-height: 1.3; }
+    .hint{ margin-top: 8px; font-size: .78rem; color: var(--muted); }
 
-    .toast[data-kind="success"]{ border-color: rgba(90, 220, 160, .35); }
-    .toast[data-kind="warning"]{ border-color: rgba(255, 216, 107, .35); }
-    .toast[data-kind="error"]{ border-color: rgba(255, 107, 107, .40); }
-    .toast[data-kind="info"]{ border-color: rgba(90, 140, 255, .35); }
+    .toast[data-kind="success"]{ border-left: 3px solid var(--success); }
+    .toast[data-kind="warning"]{ border-left: 3px solid var(--warning); }
+    .toast[data-kind="error"]{ border-left: 3px solid var(--danger); }
+    .toast[data-kind="info"]{ border-left: 3px solid var(--accent-2); }
   `],
 })
 export class ToastsComponent {

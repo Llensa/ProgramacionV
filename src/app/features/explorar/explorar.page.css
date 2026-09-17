@@ -1,62 +1,61 @@
-.page{
-  background:#141421;
-  border:1px solid #222334;
-  border-radius:14px;
-  padding:16px;
-  max-width:1400px;
-  margin:0 auto;
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  background:
+    radial-gradient(1200px 400px at 20% -10%, var(--bg-grad-1), transparent 60%),
+    radial-gradient(900px 400px at 90% 0%, var(--bg-grad-2), transparent 55%),
+    var(--surface);
+  box-shadow: var(--shadow-soft);
 }
 
-.head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:10px;
-  flex-wrap:wrap;
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
-.meta,.muted{ color:#a3a7b3; }
-.error{ color:#ff6b6b; }
+.head h1 { margin: 0; color: var(--text); font-size: clamp(1.3rem, 2.2vw, 2rem); }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-  gap:16px;
-  margin-top:12px;
+.meta, .muted { color: var(--muted); }
+.error { color: var(--danger); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
 }
 
-.empty{
-  margin-top:14px;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(0,0,0,.18);
+.empty {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken-2);
 }
-.emptyTitle{ font-weight:800; color:#e6e6f0; margin-bottom:4px; }
-.emptyMsg{ color:#a3a7b3; }
 
-.end{ text-align:center; margin-top:12px; }
+.emptyTitle { font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.emptyMsg { color: var(--muted); }
 
-@media (max-width: 768px){
-  .page{ padding:12px; border-radius:10px; }
-  .grid{ grid-template-columns: 1fr; }
-}
+.end { text-align: center; margin-top: 12px; }
+
 /* --- Esqueletos de carga --- */
-.skeleton-card{
+.skeleton-card {
   height: 262px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(90deg,#141b27 25%,#1c2533 50%,#141b27 75%);
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(90deg, var(--skeleton-1) 25%, var(--skeleton-2) 50%, var(--skeleton-1) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite linear;
 }
 
-@keyframes shimmer{
-  0%{ background-position: 200% 0; }
-  100%{ background-position: -200% 0; }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .skeleton-card{ animation: none; }
+@media (max-width: 768px) {
+  .page { padding: 12px; border-radius: 10px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 }

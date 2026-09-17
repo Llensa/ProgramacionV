@@ -1,7 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+
 import { AuthService } from '../../../core/services/auth.service';
+import { ThemeService } from '../../../core/services/theme.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
 
 @Component({
   selector: 'app-navbar',
@@ -12,11 +15,19 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class NavbarComponent {
   private auth = inject(AuthService);
+  private themeSvc = inject(ThemeService);
+  private notifs = inject(NotificationsStore);
 
   user = computed(() => this.auth.user() as any);
   emailVerified = computed(() => !!this.user()?.emailVerified);
+  isLogged = computed(() => !!this.user());
 
-  // ✅ nombre visible primero (displayName). Fallback: parte antes del @
+  /** Contador de notificaciones sin leer, para el globito del menú */
+  unread = this.notifs.unreadCount;
+
+  isDark = this.themeSvc.isDark;
+
+  /** Nombre visible; si no hay, la parte del email antes del @ */
   displayName = computed(() => {
     const u = this.user();
     const dn = (u?.displayName ?? '').trim();
@@ -31,7 +42,9 @@ export class NavbarComponent {
     return n ? n.trim()[0]?.toUpperCase() : '👤';
   });
 
-  isLogged = computed(() => !!this.user());
+  toggleTheme() {
+    this.themeSvc.toggle();
+  }
 
   logout() {
     this.auth.logout();

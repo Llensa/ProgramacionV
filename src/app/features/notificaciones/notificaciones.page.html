@@ -17,19 +17,19 @@
   </header>
 
   <div class="empty" *ngIf="!hasItems()">
-    Todavía no hay notificaciones.
+    Todavía no hay notificaciones. Guardá un favorito o comentá un juego y van a aparecer acá.
   </div>
 
   <div class="list" *ngIf="hasItems()">
     <article class="item" *ngFor="let n of items()" [class.unread]="!n.read" [attr.data-kind]="n.kind">
       <div class="left" (click)="markRead(n.id)">
-        <div class="k">{{ n.kind }}</div>
+        <div class="k">{{ label(n.kind) }}</div>
         <div class="t">{{ n.title }}</div>
         <div class="m" *ngIf="n.message">{{ n.message }}</div>
         <div class="time muted">{{ n.createdAt | date:'short' }}</div>
       </div>
 
-      <button class="x" type="button" (click)="remove(n.id)">✕</button>
+      <button class="x" type="button" (click)="remove(n.id)" aria-label="Eliminar notificación">✕</button>
     </article>
   </div>
 </section>

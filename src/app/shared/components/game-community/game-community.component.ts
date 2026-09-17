@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, signal, computed, inject } from '@angular/core';
+import { Component, Input, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { Auth, user } from '@angular/fire/auth';
 import { combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -9,8 +8,10 @@ import {
   CommunityService,
   GameCommentDoc,
   GamePublicDoc,
-  GameRatingDoc
+  GameRatingDoc,
 } from '../../../core/services/community.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
 
 @Component({
   selector: 'app-game-community',
@@ -20,8 +21,10 @@ import {
   styleUrl: './game-community.component.css',
 })
 export class GameCommunityComponent {
-  private auth = inject(Auth);
+  // El componente habla con AuthService, no con Firebase Auth directamente.
+  private auth = inject(AuthService);
   private community = inject(CommunityService);
+  private notifs = inject(NotificationsStore);
 
   private gameIdSig = signal<number | null>(null);
 
@@ -34,14 +37,13 @@ export class GameCommunityComponent {
   @Input() gameTitle = '';
   @Input() gameThumb = '';
 
-  private me$ = user(this.auth);
+  private me$ = this.auth.user$;
 
-  me = toSignal(this.me$, { initialValue: null });
+  me = this.auth.user;
   uid = computed(() => this.me()?.uid ?? null);
   emailVerified = computed(() => !!this.me()?.emailVerified);
   displayName = computed(() => this.me()?.displayName || this.me()?.email || 'Usuario');
 
-  // ✅ ESTE te faltaba (tu HTML usa gamePublic())
   gamePublic = toSignal<GamePublicDoc | null>(
     toObservable(this.gameIdSig).pipe(
       switchMap(id => (id ? this.community.watchGamePublic(id) : of(null)))
@@ -58,12 +60,12 @@ export class GameCommunityComponent {
 
   myRating = toSignal<GameRatingDoc | null>(
     combineLatest([this.me$, toObservable(this.gameIdSig)]).pipe(
-      switchMap(([u, id]) => (u && id) ? this.community.watchMyRating(id, u.uid) : of(null))
+      switchMap(([u, id]) => (u && id ? this.community.watchMyRating(id, u.uid) : of(null)))
     ),
     { initialValue: null }
   );
 
-  // UI state
+  // ---------- Estado de UI ----------
   commentText = signal('');
   busy = signal(false);
   err = signal<string | null>(null);
@@ -73,6 +75,15 @@ export class GameCommunityComponent {
 
   stars = [1, 2, 3, 4, 5];
 
+  /** Validación en vivo del comentario, antes de llegar a Firestore */
+  commentValid = computed(() => {
+    const n = this.commentText().trim().length;
+    return n >= 3 && n <= 500;
+  });
+
+  canPublish = computed(() => !!this.uid() && this.emailVerified() && this.commentValid());
+
+  // ---------- Acciones ----------
   async rate(v: number) {
     const uid = this.uid();
     const id = this.gameIdSig();
@@ -84,7 +95,11 @@ export class GameCommunityComponent {
 
     this.busy.set(true);
     try {
-      await this.community.setRating(id, uid, v, { gameTitle: this.gameTitle, gameThumb: this.gameThumb });
+      await this.community.setRating(id, uid, v, {
+        gameTitle: this.gameTitle,
+        gameThumb: this.gameThumb,
+      });
+      this.notifs.push('info', 'Calificación guardada', `${v}/5 · ${this.gameTitle}`);
     } catch (e: any) {
       this.err.set(e?.message || 'No se pudo guardar el rating.');
     } finally {
@@ -101,6 +116,7 @@ export class GameCommunityComponent {
     if (!id) { this.err.set('Juego inválido.'); return; }
     if (!uid) { this.err.set('Tenés que iniciar sesión para comentar.'); return; }
     if (!this.emailVerified()) { this.err.set('Verificá tu email para comentar.'); return; }
+    if (!this.commentValid()) { this.err.set('El comentario debe tener entre 3 y 500 caracteres.'); return; }
 
     this.busy.set(true);
     try {
@@ -110,9 +126,10 @@ export class GameCommunityComponent {
         gameThumb: this.gameThumb,
         uid,
         displayName: this.displayName(),
-        text
+        text,
       });
       this.commentText.set('');
+      this.notifs.push('success', 'Comentario publicado', this.gameTitle);
     } catch (e: any) {
       this.err.set(e?.message || 'No se pudo publicar el comentario.');
     } finally {
@@ -142,6 +159,7 @@ export class GameCommunityComponent {
     try {
       await this.community.updateComment(gid, id, text);
       this.cancelEdit();
+      this.notifs.push('success', 'Comentario actualizado', this.gameTitle);
     } catch (e: any) {
       this.err.set(e?.message || 'No se pudo editar el comentario.');
     } finally {
@@ -157,6 +175,7 @@ export class GameCommunityComponent {
     this.err.set(null);
     try {
       await this.community.deleteComment(gid, commentId);
+      this.notifs.push('warning', 'Comentario eliminado', this.gameTitle);
     } catch (e: any) {
       this.err.set(e?.message || 'No se pudo borrar el comentario.');
     } finally {

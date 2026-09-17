@@ -15,25 +15,28 @@ import {
 
 import { reload } from 'firebase/auth';
 
+/**
+ * Única puerta de entrada a Firebase Authentication.
+ * Ningún componente importa `Auth` directamente: todos pasan por acá.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
 
-  /** Observable del estado de sesión (para componentes que necesitan el stream) */
+  /** Stream del estado de sesión (para componentes y servicios reactivos) */
   readonly user$ = authState(this.auth);
 
-  /** Usuario actual sincrónico (null si no hay sesión) */
+  /** Señal tipada del usuario actual */
+  user = toSignal(this.user$, { initialValue: null as User | null });
+
+  /** Usuario actual de forma sincrónica (null si no hay sesión) */
   get currentUser() {
     return this.auth.currentUser;
   }
 
-  // Signal tipada (User | null)
-  user = toSignal(this.user$, { initialValue: null as User | null });
-
   isLoggedIn = computed(() => !!this.user());
   isVerified = computed(() => !!this.user()?.emailVerified);
 
-  // ✅ OJO: este orden (email, password, displayName) es el que venías usando vos
   async register(email: string, password: string, displayName?: string) {
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
 
@@ -64,19 +67,15 @@ export class AuthService {
     await sendPasswordResetEmail(this.auth, email);
   }
 
-  // ✅ helpers para la página Cuenta
+  /**
+   * Recarga el usuario desde Firebase.
+   * `reload` actualiza emailVerified; `getIdToken(true)` fuerza un token nuevo
+   * para que las reglas de Firestore vean el claim email_verified actualizado.
+   */
   async refreshUser() {
     const u = this.auth.currentUser;
     if (!u) return;
-    await reload(u);             // actualiza emailVerified en el user
-    await u.getIdToken(true);    // ✅ fuerza token nuevo con email_verified
-  }
-
-
-  async setDisplayName(name: string) {
-    const u = this.auth.currentUser;
-    if (!u) return;
-    await updateProfile(u, { displayName: name.trim() });
-    await this.refreshUser();
+    await reload(u);
+    await u.getIdToken(true);
   }
 }

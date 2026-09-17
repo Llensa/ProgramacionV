@@ -17,6 +17,18 @@ export class NotificacionesPage {
 
   hasItems = computed(() => this.items().length > 0);
 
+  /** Etiquetas en español: el store guarda la clave técnica en inglés */
+  private readonly kindLabels: Record<string, string> = {
+    info: 'Información',
+    success: 'Listo',
+    warning: 'Atención',
+    error: 'Error',
+  };
+
+  label(kind: string): string {
+    return this.kindLabels[kind] ?? kind;
+  }
+
   markAllRead() { this.store.markAllRead(); }
   markRead(id: string) { this.store.markRead(id); }
   remove(id: string) { this.store.remove(id); }
