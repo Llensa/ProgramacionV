@@ -1,0 +1,45 @@
+<div class="filters" [formGroup]="form">
+  <div class="search">
+    <label for="q">Buscar</label>
+    <div class="search-wrap">
+      <span class="icon" aria-hidden="true">🔍</span>
+      <input
+        id="q"
+        type="search"
+        formControlName="q"
+        placeholder="Buscar por nombre del juego..."
+        autocomplete="off"
+      />
+    </div>
+  </div>
+
+  <div>
+    <label for="platform">Plataforma</label>
+    <select id="platform" formControlName="platform">
+      <option value="">Todas</option>
+      <option value="pc">PC (Windows)</option>
+      <option value="browser">Browser</option>
+      <option value="all">PC + Browser</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="category">Categoría</label>
+    <select id="category" formControlName="category">
+      <option value="">Todas</option>
+      <option *ngFor="let c of categories()" [value]="c">{{ c }}</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="sortBy">Ordenar por</label>
+    <select id="sortBy" formControlName="sortBy">
+      <option value="">Relevancia</option>
+      <option value="release-date">Fecha de lanzamiento</option>
+      <option value="alphabetical">Alfabético</option>
+      <option value="popularity">Popularidad</option>
+    </select>
+  </div>
+
+  <button type="button" class="clear" (click)="clear()">Limpiar filtros</button>
+</div>

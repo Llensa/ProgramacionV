@@ -1,7 +1,12 @@
 <section class="page">
   <header class="head">
     <h1>Explorar juegos</h1>
-    <span class="meta" *ngIf="total() !== null">{{ total() }} juegos</span>
+    <span class="meta" *ngIf="isSearching(); else totalTpl">
+      {{ resultCount() }} resultado(s) para "{{ searchTerm() }}"
+    </span>
+    <ng-template #totalTpl>
+      <span class="meta" *ngIf="total() !== null">{{ total() }} juegos</span>
+    </ng-template>
   </header>
 
   <app-filters-bar
@@ -12,23 +17,29 @@
   <div class="grid" *ngIf="loading() && !games().length">
     <div class="skeleton-card" *ngFor="let _ of [1,2,3,4,5,6,7,8]"></div>
   </div>
+
   <p class="error" *ngIf="error()">{{ error() }}</p>
 
-  <div class="empty" *ngIf="!loading() && !error() && !games().length">
+  <div class="empty" *ngIf="!loading() && !error() && !visibleGames().length">
     <div class="emptyTitle">No hay resultados</div>
-    <div class="emptyMsg">Probá otra categoría o cambiá el orden.</div>
+    <div class="emptyMsg" *ngIf="isSearching(); else noFiltersMsg">
+      Ningún juego coincide con "{{ searchTerm() }}". Probá con otro nombre.
+    </div>
+    <ng-template #noFiltersMsg>
+      <div class="emptyMsg">Probá otra categoría o cambiá el orden.</div>
+    </ng-template>
   </div>
 
   <div class="grid">
     <app-game-card
-      *ngFor="let g of games(); let i = index; trackBy: trackById"
+      *ngFor="let g of visibleGames(); let i = index; trackBy: trackById"
       [game]="g"
       [eager]="i < 4">
     </app-game-card>
   </div>
 
-  <div appInfiniteScroll (reachedBottom)="onScrollBottom()"></div>
+  <div appInfiniteScroll (reachedBottom)="onScrollBottom()" *ngIf="!isSearching()"></div>
 
   <p class="muted" *ngIf="loading() && games().length">Cargando más...</p>
-  <p class="muted end" *ngIf="noMore()">No hay más resultados</p>
+  <p class="muted end" *ngIf="noMore() && !isSearching()">No hay más resultados</p>
 </section>
