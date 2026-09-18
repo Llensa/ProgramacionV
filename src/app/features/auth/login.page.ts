@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../core/services/auth.service';
 import { ToastStore } from '../../core/services/toast.store';
-
+import { DEFAULT_RETURN_URL, safeReturnUrl } from '../../core/utils/safe-url';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -25,7 +25,7 @@ export class LoginPage {
   loading = signal(false);
   googleLoading = signal(false);
   error = signal<string | null>(null);
-  returnUrl = signal<string>('/explorar');
+  returnUrl = signal<string>(DEFAULT_RETURN_URL);
   showPassword = signal(false);
 
   form = this.fb.nonNullable.group({
@@ -35,8 +35,8 @@ export class LoginPage {
 
   constructor() {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(qp => {
-      const ru = qp.get('returnUrl');
-      if (ru) this.returnUrl.set(ru);
+      // Nunca se usa crudo: cualquiera puede editarlo en la barra de direcciones
+      this.returnUrl.set(safeReturnUrl(qp.get('returnUrl')));
 
       if (qp.get('reason') === 'auth') {
         this.toast.show('warning', 'Acceso restringido', 'Tenés que iniciar sesión para entrar.');

@@ -26,6 +26,18 @@ service cloud.firestore {
         && request.resource.data.text.size() <= 500;
     }
 
+    // El nombre y la foto se guardan desnormalizados en cada comentario.
+    // Sin limite de largo, un usuario podia escribir un displayName de miles
+    // de caracteres y romper el diseno de la pagina para todos los que la vean.
+    function validCommentAuthor() {
+      return (!('displayName' in request.resource.data)
+               || (request.resource.data.displayName is string
+                   && request.resource.data.displayName.size() <= 40))
+        && (!('photoURL' in request.resource.data)
+               || (request.resource.data.photoURL is string
+                   && request.resource.data.photoURL.size() <= 500));
+    }
+
     function onlyKeys(allowed) {
       return request.resource.data.keys().hasOnly(allowed);
     }
@@ -71,6 +83,7 @@ service cloud.firestore {
 
         allow create: if emailVerified()
           && validCommentText()
+          && validCommentAuthor()
           && request.resource.data.uid == request.auth.uid
           && onlyKeys([
             'gameId','gameTitle','gameThumb',
@@ -80,6 +93,7 @@ service cloud.firestore {
         allow update: if emailVerified()
           && isOwner(resource.data.uid)
           && validCommentText()
+          && validCommentAuthor()
           && request.resource.data.uid == resource.data.uid
           && request.resource.data.gameId == resource.data.gameId
           && request.resource.data.createdAt == resource.data.createdAt
@@ -87,7 +101,6 @@ service cloud.firestore {
             'gameId','gameTitle','gameThumb',
             'uid','displayName','photoURL','text','createdAt','updatedAt'
           ]);
-
         allow delete: if emailVerified() && isOwner(resource.data.uid);
       }
     }
@@ -173,7 +186,8 @@ service cloud.firestore {
           'gameId','field','sourceLang','targetLang',
           'sourceText','translatedText','provider','updatedAt'
         ])
-        && request.resource.data.translatedText is string;
+                && request.resource.data.translatedText is string
+                && request.resource.data.translatedText.size() <= 7500;
 
       allow delete: if false;
     }

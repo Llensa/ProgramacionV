@@ -15,6 +15,7 @@ import { GameCommunityComponent } from '../../shared/components/game-community/g
 import { GamesApiService } from '../../core/api/games-api';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { TranslationService } from '../../core/services/translation.service';
+import { parseGameId } from '../../core/utils/safe-url';
 
 @Component({
   selector: 'app-detalle',
@@ -98,9 +99,12 @@ export class DetallePage implements OnInit {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(pm => {
-        const id = Number(pm.get('id'));
-        if (!Number.isFinite(id)) {
-          this.error.set('ID inválido.');
+        // parseGameId rechaza 0, negativos, decimales y texto.
+        // Number('') vale 0, asi que comprobar solo isFinite dejaba
+        // pasar /juego/0 y /juego/-1 hasta la llamada a la API.
+        const id = parseGameId(pm.get('id'));
+        if (id === null) {
+          this.router.navigateByUrl('/404', { skipLocationChange: true });
           return;
         }
 

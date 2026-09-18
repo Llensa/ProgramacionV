@@ -12,6 +12,11 @@ import { STORAGE_KEYS } from '../../core/constants/storage-keys';
 import { normalizeText } from '../../core/utils/text';
 import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll.directive';
 import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
+import {
+  sanitizeCategory,
+  sanitizePlatform,
+  sanitizeSortBy,
+} from '../../core/utils/filters-sanitize';
 
 const PAGE_SIZE = 24;
 /** Al buscar por texto traemos el catálogo completo para filtrar en memoria */
@@ -66,9 +71,9 @@ export class ExplorarPage implements OnInit {
       .pipe(
         map(qp => ({
           q: qp.get('q') || undefined,
-          platform: (qp.get('platform') || undefined) as any,
-          category: qp.get('category') || undefined,
-          sortBy: (qp.get('sort-by') || undefined) as any,
+          platform: sanitizePlatform(qp.get('platform')),
+          category: sanitizeCategory(qp.get('category')),
+          sortBy: sanitizeSortBy(qp.get('sort-by')),
         })),
         map(qp => {
           const empty = !qp.q && !qp.platform && !qp.category && !qp.sortBy;
