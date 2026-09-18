@@ -4,12 +4,12 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { CommunityService } from '../../../core/services/community.service';
 import {
-  CommunityService,
   GameCommentDoc,
   GamePublicDoc,
   GameRatingDoc,
-} from '../../../core/services/community.service';
+} from '../../../core/models/community';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationsStore } from '../../../core/services/notifications.store';
 

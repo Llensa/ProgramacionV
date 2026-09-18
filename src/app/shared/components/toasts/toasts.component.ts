@@ -1,83 +1,25 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { ToastStore } from '../../../core/services/toast.store';
 
+/**
+ * Pila de avisos emergentes. Se monta una sola vez en el componente raiz
+ * y lee su contenido del ToastStore, que es global.
+ */
 @Component({
   selector: 'app-toasts',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="stack" aria-live="polite" aria-atomic="true">
-      <div class="toast" *ngFor="let t of items()" [attr.data-kind]="t.kind" role="status">
-        <div class="body" (click)="remove(t.id)">
-          <div class="title">{{ t.title }}</div>
-          <div class="msg" *ngIf="t.message">{{ t.message }}</div>
-        </div>
-
-        <button class="close" type="button" (click)="remove(t.id)" aria-label="Cerrar">✕</button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .stack{
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 9999;
-      display: grid;
-      gap: 10px;
-      width: min(360px, calc(100vw - 28px));
-      pointer-events: none;
-    }
-
-    .toast{
-      pointer-events: auto;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      border-radius: 14px;
-      padding: 12px;
-      border: 1px solid var(--border-strong);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      color: var(--text);
-      animation: toastIn .22s ease-out;
-    }
-
-    .body{ flex: 1; min-width: 0; cursor: pointer; }
-
-    .close{
-      flex: 0 0 auto;
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      border: 1px solid var(--border-soft);
-      background: var(--surface-sunken);
-      color: var(--muted);
-      cursor: pointer;
-      line-height: 1;
-      font-size: .8rem;
-      transition: color .15s ease, border-color .15s ease;
-    }
-
-    .close:hover{ color: var(--danger); border-color: var(--danger); }
-
-    @keyframes toastIn{
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .title{ font-weight: 800; margin-bottom: 2px; }
-    .msg{ color: var(--text-2); font-size: .92rem; line-height: 1.3; }
-
-    .toast[data-kind="success"]{ border-left: 3px solid var(--success); }
-    .toast[data-kind="warning"]{ border-left: 3px solid var(--warning); }
-    .toast[data-kind="error"]{ border-left: 3px solid var(--danger); }
-    .toast[data-kind="info"]{ border-left: 3px solid var(--accent-2); }
-  `],
+  templateUrl: './toasts.component.html',
+  styleUrl: './toasts.component.css',
 })
 export class ToastsComponent {
   private store = inject(ToastStore);
+
   items = computed(() => this.store.items());
-  remove(id: string) { this.store.remove(id); }
+
+  remove(id: string) {
+    this.store.remove(id);
+  }
 }

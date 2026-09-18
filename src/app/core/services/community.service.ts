@@ -25,34 +25,11 @@ import {
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export interface GamePublicDoc {
-  gameId?: number;
-  gameTitle?: string;
-  gameThumb?: string;
-  ratingAvg?: number;
-  ratingCount?: number;
-  commentCount?: number;
-  updatedAt?: any;
-}
-
-export interface GameCommentDoc {
-  id?: string;
-  gameId?: number;
-  gameTitle?: string;
-  gameThumb?: string;
-  uid?: string;
-  displayName?: string;
-  photoURL?: string;
-  text?: string;
-  createdAt?: any;
-  updatedAt?: any;
-}
-
-export interface GameRatingDoc {
-  value?: number; // 1..5
-  createdAt?: any;
-  updatedAt?: any;
-}
+import {
+  GameCommentDoc,
+  GamePublicDoc,
+  GameRatingDoc,
+} from '../models/community';
 
 @Injectable({ providedIn: 'root' })
 export class CommunityService {

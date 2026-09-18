@@ -3,9 +3,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { ToastsComponent } from './shared/components/toasts/toasts.component';
 import { AuthService } from './core/services/auth.service';
-
-/** Rutas que requieren sesión: si se cierra, hay que salir de ellas */
-const PROTECTED = ['/favoritos', '/notificaciones', '/cuenta'];
+import { PROTECTED_ROUTES } from './core/constants/protected-routes';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +24,7 @@ export class AppComponent {
       if (logged) return;
 
       const url = this.router.url.split('?')[0];
-      if (PROTECTED.some(p => url.startsWith(p))) {
+      if (PROTECTED_ROUTES.some(p => url.startsWith(p))) {
         this.router.navigateByUrl('/explorar');
       }
     });

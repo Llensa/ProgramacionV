@@ -3,59 +3,22 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Observable, throwError, timer } from 'rxjs';
 import { catchError, map, retry, shareReplay } from 'rxjs/operators';
 
-export interface GameListItem {
-  id: number;
-  title: string;
-  thumbnail: string;
-  short_description: string;
-  game_url: string;
-  genre: string;
-  platform: string;
-  publisher?: string;
-  developer?: string;
-  release_date?: string;
-}
-
-export interface GameScreenshot {
-  id: number;
-  image: string;
-}
-
-export interface GameDetail extends GameListItem {
-  status?: string;
-  description?: string;
-  freetogame_profile_url?: string;
-  screenshots?: GameScreenshot[];
-  minimum_system_requirements?: {
-    os?: string;
-    processor?: string;
-    memory?: string;
-    graphics?: string;
-    storage?: string;
-  };
-}
-
-export interface GameListResponse {
-  items: GameListItem[];
-  total: number;
-}
-
-export type GetGamesOptions = {
-  page?: number;
-  pageSize?: number;
-  platform?: 'pc' | 'browser' | 'all';
-  category?: string;
-  sortBy?: 'release-date' | 'alphabetical' | 'popularity' | 'relevance';
-};
+import {
+  GameDetail,
+  GameListItem,
+  GameListResponse,
+  GetGamesOptions,
+} from '../models/game';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class GamesApiService {
   private http = inject(HttpClient);
 
-  // ✅ base del proxy (prod) o override por window.__CFG__ (dev)
+  //  base del proxy (prod) o override por window.__CFG__ (dev)
   private readonly baseUrl =
     (typeof window !== 'undefined' && (window as any).__CFG__?.apiBaseUrl)
-    || 'https://freetogame-proxy.juanpablollensa.workers.dev/api';
+    || environment.apiBaseUrl;
 
   // cache simple 5 min
   private cache = new Map<string, { ts: number; obs$: Observable<any> }>();
@@ -103,7 +66,7 @@ export class GamesApiService {
     const req$ = this.http.get<T>(url, { params }).pipe(
       retry({ count: 2, delay: (_e, c) => timer(250 * (c + 1)) }),
       catchError((err: HttpErrorResponse) => {
-        // 🔥 importantísimo: si falla, no cachear el error
+        // importantísimo: si falla, no cachear el error
         this.cache.delete(key);
         return throwError(() => err);
       }),

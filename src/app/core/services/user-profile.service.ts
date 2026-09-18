@@ -3,15 +3,7 @@ import { Auth, updateProfile } from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { runTransaction, serverTimestamp } from 'firebase/firestore';
 
-export type NotifyFreq = 'instant' | 'daily' | 'weekly';
-
-export interface UserPrefs {
-  emailNotifications: boolean;
-  notifyOnReplies: boolean;
-  notifyOnMentions: boolean;
-  frequency: NotifyFreq;
-  updatedAt?: any;
-}
+import { NotifyFreq, UserPrefs } from '../models/user-profile';
 
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {

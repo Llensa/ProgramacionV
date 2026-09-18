@@ -1,0 +1,18 @@
+<div
+  class="avatar"
+  [style.width.px]="size"
+  [style.height.px]="size"
+  [style.font-size.px]="size * 0.42"
+  [style.background]="showImage() ? 'transparent' : bgColor()"
+  [title]="name"
+>
+  <img
+    *ngIf="showImage()"
+    [src]="photoURL"
+    [alt]="name"
+    referrerpolicy="no-referrer"
+    decoding="async"
+    (error)="onError()"
+  />
+  <span *ngIf="!showImage()">{{ initial() }}</span>
+</div>

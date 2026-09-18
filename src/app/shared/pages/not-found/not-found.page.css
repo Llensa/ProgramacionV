@@ -1,0 +1,18 @@
+.not-found {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 64px 16px;
+}
+
+.not-found h1 {
+  font-size: 4rem;
+  margin: 0;
+  color: var(--accent-2);
+}
+
+.not-found .muted {
+  color: var(--muted);
+  margin: 0;
+}

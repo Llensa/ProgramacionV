@@ -5,12 +5,11 @@ import { getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from './auth.service';
+import { TranslatableField } from '../models/translation';
+import { environment } from '../../../environments/environment';
 
 /** MyMemory limita las peticiones anónimas a ~500 caracteres */
 const MAX_CHUNK = 450;
-const API_URL = 'https://api.mymemory.translated.net/get';
-
-export type TranslatableField = 'description' | 'short_description';
 
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
@@ -84,7 +83,7 @@ export class TranslationService {
 
   private async callApi(q: string, targetLang: string): Promise<string> {
     const res: any = await firstValueFrom(
-      this.http.get(API_URL, { params: { q, langpair: `en|${targetLang}` } })
+      this.http.get(environment.translationApiUrl, { params: { q, langpair: `en|${targetLang}` } })
     );
     const t = String(res?.responseData?.translatedText ?? '').trim();
     if (!t) throw new Error('Traducción vacía');

@@ -15,19 +15,8 @@ import { switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { NotificationsStore } from './notifications.store';
 import { GameSummary } from '../models/game';
-
-/** Documento guardado en users/{uid}/favorites/{gameId} */
-export interface FavoriteDoc {
-  gameId: number;
-  title: string;
-  thumbnail: string;
-  genre?: string;
-  platform?: string;
-  createdAt?: any;
-}
-
-/** Error que lanzan los métodos de escritura cuando no hay sesión */
-export const AUTH_REQUIRED = 'AUTH_REQUIRED';
+import { FavoriteDoc } from '../models/favorite';
+import { AUTH_REQUIRED } from '../constants/errors';
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {

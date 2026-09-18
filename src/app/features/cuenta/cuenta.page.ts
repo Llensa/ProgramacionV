@@ -8,12 +8,10 @@ import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastStore } from '../../core/services/toast.store';
 import { FavoritesService } from '../../core/services/favorites.service';
-import { CommunityService, GameCommentDoc } from '../../core/services/community.service';
-import {
-  UserProfileService,
-  UserPrefs,
-  NotifyFreq,
-} from '../../core/services/user-profile.service';
+import { CommunityService } from '../../core/services/community.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
+import { GameCommentDoc } from '../../core/models/community';
+import { NotifyFreq, UserPrefs } from '../../core/models/user-profile';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 @Component({

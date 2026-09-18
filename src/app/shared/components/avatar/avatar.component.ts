@@ -10,41 +10,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-avatar',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div
-      class="avatar"
-      [style.width.px]="size"
-      [style.height.px]="size"
-      [style.font-size.px]="size * 0.42"
-      [style.background]="showImage() ? 'transparent' : bgColor()"
-      [title]="name"
-    >
-      <img
-        *ngIf="showImage()"
-        [src]="photoURL"
-        [alt]="name"
-        referrerpolicy="no-referrer"
-        decoding="async"
-        (error)="onError()"
-      />
-      <span *ngIf="!showImage()">{{ initial() }}</span>
-    </div>
-  `,
-  styles: [`
-    .avatar{
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      flex: 0 0 auto;
-      font-weight: 800;
-      color: #fff;
-      border: 1px solid var(--border-strong);
-      user-select: none;
-      line-height: 1;
-    }
-    img{ width: 100%; height: 100%; object-fit: cover; display: block; }
-  `],
+  templateUrl: './avatar.component.html',
+  styleUrl: './avatar.component.css',
 })
 export class AvatarComponent {
   @Input() photoURL: string | null | undefined = null;

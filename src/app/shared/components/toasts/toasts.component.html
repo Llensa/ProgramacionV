@@ -1,0 +1,10 @@
+<div class="stack" aria-live="polite" aria-atomic="true">
+  <div class="toast" *ngFor="let t of items()" [attr.data-kind]="t.kind" role="status">
+    <div class="body" (click)="remove(t.id)">
+      <div class="title">{{ t.title }}</div>
+      <div class="msg" *ngIf="t.message">{{ t.message }}</div>
+    </div>
+
+    <button class="close" type="button" (click)="remove(t.id)" aria-label="Cerrar">✕</button>
+  </div>
+</div>

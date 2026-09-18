@@ -3,11 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import {
-  CommunityService,
-  GamePublicDoc,
-  GameCommentDoc,
-} from '../../core/services/community.service';
+import { CommunityService } from '../../core/services/community.service';
+import { GameCommentDoc, GamePublicDoc } from '../../core/models/community';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 type Tab = 'recientes' | 'top';

@@ -4,23 +4,18 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { GamesApiService, GameListItem, GameListResponse } from '../../core/api/games-api';
-import { Filters, FiltersBarComponent } from './ui/filters-bar.component';
-import { InfiniteScrollDirective } from '../../shared/infinite-scroll.directive';
+import { GamesApiService } from '../../core/api/games-api';
+import { GameListItem, GameListResponse } from '../../core/models/game';
+import { FiltersBarComponent } from './ui/filters-bar.component';
+import { Filters } from '../../core/models/filters';
+import { STORAGE_KEYS } from '../../core/constants/storage-keys';
+import { normalizeText } from '../../core/utils/text';
+import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll.directive';
 import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
 
-const LS_KEY = 'explorar.filters.v1';
 const PAGE_SIZE = 24;
 /** Al buscar por texto traemos el catálogo completo para filtrar en memoria */
 const SEARCH_PAGE_SIZE = 500;
-
-/** Normaliza para comparar sin acentos ni mayúsculas */
-function normalize(s: string): string {
-  return (s || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
 
 @Component({
   selector: 'app-explorar',
@@ -52,10 +47,10 @@ export class ExplorarPage implements OnInit {
    * la lista o el término, sin volver a pedir datos a la API.
    */
   visibleGames = computed(() => {
-    const q = normalize(this.searchTerm());
+    const q = normalizeText(this.searchTerm());
     const list = this.games();
     if (!q) return list;
-    return list.filter(g => normalize(g.title).includes(q));
+    return list.filter(g => normalizeText(g.title).includes(q));
   });
 
   resultCount = computed(() => this.visibleGames().length);
@@ -151,11 +146,11 @@ export class ExplorarPage implements OnInit {
   }
 
   private readFromLS(): Filters {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') as Filters; }
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.explorarFilters) || '{}') as Filters; }
     catch { return {}; }
   }
 
   private writeToLS(f: Filters) {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(f)); } catch {}
+    try { localStorage.setItem(STORAGE_KEYS.explorarFilters, JSON.stringify(f)); } catch {}
   }
 }

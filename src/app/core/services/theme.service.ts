@@ -1,8 +1,7 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 
-export type Theme = 'dark' | 'light';
-
-const STORAGE_KEY = 'yenzaplayg.theme';
+import { Theme } from '../models/theme';
+import { STORAGE_KEYS } from '../constants/storage-keys';
 
 /**
  * Maneja el tema visual de la aplicación.
@@ -26,7 +25,7 @@ export class ThemeService {
       document.documentElement.setAttribute('data-theme', t);
 
       try {
-        localStorage.setItem(STORAGE_KEY, t);
+        localStorage.setItem(STORAGE_KEYS.theme, t);
       } catch {
         // modo privado o storage deshabilitado: el tema igual se aplica
       }
@@ -48,7 +47,7 @@ export class ThemeService {
   /** Preferencia guardada; si es la primera visita, la del sistema operativo */
   private readInitial(): Theme {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEYS.theme);
       if (saved === 'dark' || saved === 'light') return saved;
     } catch {
       // ignorado a propósito

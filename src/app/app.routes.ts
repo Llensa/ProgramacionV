@@ -52,10 +52,10 @@ export const routes: Routes = [
       import('./features/auth/register.page').then((m) => m.RegisterPage),
   },
 
-  // ✅ SIEMPRE AL FINAL
+  // si o si va al final
   {
     path: '**',
     loadComponent: () =>
-      import('./shared/not-found.page').then((m) => m.NotFoundPage),
+      import('./shared/pages/not-found/not-found.page').then((m) => m.NotFoundPage),
   },
 ];

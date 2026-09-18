@@ -1,7 +1,6 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { AppNotification, NotificationKind } from '../models/notification';
-
-const KEY = 'yenzaplayg:notifications';
+import { STORAGE_KEYS } from '../constants/storage-keys';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsStore {
@@ -9,11 +8,11 @@ export class NotificationsStore {
 
   constructor() {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(STORAGE_KEYS.notifications);
       if (raw) this.items.set(JSON.parse(raw));
     } catch {}
     effect(() => {
-      localStorage.setItem(KEY, JSON.stringify(this.items()));
+      localStorage.setItem(STORAGE_KEYS.notifications, JSON.stringify(this.items()));
     });
   }
 

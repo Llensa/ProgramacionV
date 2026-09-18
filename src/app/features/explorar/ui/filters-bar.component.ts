@@ -4,12 +4,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-export type Filters = {
-  q?: string;
-  platform?: 'pc' | 'browser' | 'all';
-  category?: string;
-  sortBy?: 'relevance' | 'release-date' | 'alphabetical' | 'popularity';
-};
+import { Filters } from '../../../core/models/filters';
 
 @Component({
   selector: 'app-filters-bar',
